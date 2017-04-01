@@ -9,6 +9,7 @@
         "no-reference": false,
         "ordered-imports": [
             false
-        ]
+        ],
+        "typedef": [false]
     }
 }
