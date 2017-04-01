@@ -1,0 +1,7 @@
+{
+    "extends": "tslint-microsoft-contrib",
+    "rules": {
+        "missing-jsdoc": 0,
+        "quotemark": ["double"]
+    }
+}
