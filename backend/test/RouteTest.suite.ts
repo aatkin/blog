@@ -28,4 +28,14 @@ describe("simple get route", () => {
                 done();
             });
     });
+
+    it("should return json response", (done: Function) => {
+        chai.request(server.app)
+            .get("/test")
+            .end((err, res) => {
+                expect(res).to.be.json;
+                expect(res.body.test).to.be.true;
+                done();
+            });
+    });
 });

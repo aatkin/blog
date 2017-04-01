@@ -10,6 +10,7 @@
         "ordered-imports": [
             false
         ],
-        "typedef": [false]
+        "typedef": [false],
+        "no-require-imports": false
     }
 }
