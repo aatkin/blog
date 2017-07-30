@@ -11,6 +11,14 @@
             false
         ],
         "typedef": [false],
-        "no-require-imports": false
-    }
+        "no-require-imports": false,
+
+        "no-empty": false,
+        "one-line": [false],
+        "no-consecutive-blank-lines": false
+    },
+
+    "rulesDirectory": [
+        "node_modules/tslint-no-unused-expression-chai/rules"
+    ]
 }

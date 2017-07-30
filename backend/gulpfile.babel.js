@@ -17,19 +17,20 @@ gulp.task("scripts", () => {
         .pipe(babel())
         .pipe(sourcemaps.write(".", { sourceRoot: path.join(__dirname, "src") }))
         .pipe(gulp.dest("dist"));
+    return tsResult;
 });
 
 gulp.task("tests", () => {
     gulp.src("test/**/*.ts")
-    .pipe(mocha());
+        .pipe(mocha());
 });
 
-gulp.task("watchSource", ["scripts"], () => {
+gulp.task("watch-source", ["scripts"], () => {
     gulp.watch("src/**/*.ts", ["scripts"]);
 });
 
-gulp.task("watchTests", ["tests"], () => {
+gulp.task("watch-tests", ["tests"], () => {
     gulp.watch(["test/**/*.ts", "src/**/*.ts"], ["tests"]);
 });
 
-gulp.task("default", ["watchSource", "watchTests"]);
+gulp.task("default", ["watch-source", "watch-tests"]);

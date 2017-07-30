@@ -15,11 +15,12 @@
                 "${workspaceRoot}/backend/dist/**/*.js"
             ],
             "program": "${workspaceRoot}/backend/src/Blog.ts",
-            "runtimeArgs": [
-                "--nolazy"
-            ],
+            "runtimeExecutable": "nodemon",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
             "sourceMaps": true,
-            "trace": "sm"
+            "trace": "sm",
+            "restart": true
         },
         {
             "name": "Attach",
