@@ -2,6 +2,7 @@ import * as express from "express";
 
 import { ApiRoute } from "./routes/Api";
 
+
 /**
  * Back-end server class
  *
@@ -32,7 +33,8 @@ export class Server
     /**
      * Start the server using given parameters
      */
-    public start(port: Number, callback: Function): void {
+    public start(port: Number, callback: Function): void
+    {
         this.app.listen(port, callback);
     }
 

@@ -1,7 +1,7 @@
 import * as express from "express";
 
 import { Route } from "../Route";
-import { BlogRoute } from "./BlogRoute";
+import { UserRoute } from "./UserRoute";
 
 
 export class ApiRoute extends Route
@@ -12,11 +12,11 @@ export class ApiRoute extends Route
         router.get("/", this.getIndex.bind(this));
 
         // subroute handlers
-        router.use("/blog", new BlogRoute().router);
+        router.use("/user", new UserRoute().router);
     }
 
     private getIndex(req: express.Request, res: express.Response, next: express.NextFunction): void
     {
-        res.json({ msg: "route: api/" });
+        res.json({ msg: "route: GET /api" });
     }
 }
