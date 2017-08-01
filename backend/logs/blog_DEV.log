@@ -1,0 +1,31 @@
+{"level":"debug","message":"Connected to database","timestamp":"2017-08-01T19:12:26.035Z"}
+{"level":"debug","message":"Using fixtures - THIS WILL CLEAR YOUR CURRENT DATABASE!","timestamp":"2017-08-01T19:12:26.037Z"}
+{"level":"debug","message":"Fixtures loaded successfully","timestamp":"2017-08-01T19:12:26.312Z"}
+{"level":"debug","message":"Server running on port 4730","timestamp":"2017-08-01T19:12:26.334Z"}
+{"level":"debug","message":"Connected to database","timestamp":"2017-08-01T19:14:21.411Z"}
+{"level":"debug","message":"Using fixtures - THIS WILL CLEAR YOUR CURRENT DATABASE!","timestamp":"2017-08-01T19:14:21.413Z"}
+{"level":"debug","message":"Fixtures loaded successfully","timestamp":"2017-08-01T19:14:21.593Z"}
+{"level":"debug","message":"Server running on port 4730","timestamp":"2017-08-01T19:14:21.608Z"}
+{"level":"debug","message":"GET: ","timestamp":"2017-08-01T19:14:25.623Z"}
+{"level":"debug","message":"GET: ","timestamp":"2017-08-01T19:15:12.437Z"}
+{"level":"debug","message":"Connected to database","timestamp":"2017-08-01T19:15:29.400Z"}
+{"level":"debug","message":"Using fixtures - THIS WILL CLEAR YOUR CURRENT DATABASE!","timestamp":"2017-08-01T19:15:29.402Z"}
+{"level":"debug","message":"Fixtures loaded successfully","timestamp":"2017-08-01T19:15:29.559Z"}
+{"level":"debug","message":"Server running on port 4730","timestamp":"2017-08-01T19:15:29.580Z"}
+{"level":"debug","message":"GET: /api/user/test","timestamp":"2017-08-01T19:15:33.454Z"}
+{"level":"info","message":"Booting up back-end","timestamp":"2017-08-01T19:17:04.129Z"}
+{"level":"debug","message":"Connected to database","timestamp":"2017-08-01T19:17:04.466Z"}
+{"level":"debug","message":"Using fixtures - THIS WILL CLEAR YOUR CURRENT DATABASE!","timestamp":"2017-08-01T19:17:04.468Z"}
+{"level":"debug","message":"Fixtures loaded successfully","timestamp":"2017-08-01T19:17:04.667Z"}
+{"level":"info","message":"Server running on port 4730","timestamp":"2017-08-01T19:17:04.682Z"}
+{"level":"info","message":"Booting up back-end","timestamp":"2017-08-01T19:17:33.398Z"}
+{"level":"debug","message":"Connected to database","timestamp":"2017-08-01T19:17:33.633Z"}
+{"level":"warn","message":"Using fixtures - THIS WILL CLEAR YOUR CURRENT DATABASE!","timestamp":"2017-08-01T19:17:33.634Z"}
+{"level":"debug","message":"Fixtures loaded successfully","timestamp":"2017-08-01T19:17:33.816Z"}
+{"level":"info","message":"Server running on port 4730","timestamp":"2017-08-01T19:17:33.839Z"}
+{"level":"info","message":"Starting back-end","timestamp":"2017-08-01T19:18:28.045Z"}
+{"level":"debug","message":"Connected to database","timestamp":"2017-08-01T19:18:28.276Z"}
+{"level":"warn","message":"Using fixtures - THIS WILL CLEAR YOUR CURRENT DATABASE!","timestamp":"2017-08-01T19:18:28.278Z"}
+{"level":"debug","message":"Fixtures loaded successfully","timestamp":"2017-08-01T19:18:28.500Z"}
+{"level":"info","message":"Server running on port 4730","timestamp":"2017-08-01T19:18:28.521Z"}
+{"level":"debug","message":"GET: /api/user/test","timestamp":"2017-08-01T19:18:36.258Z"}

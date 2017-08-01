@@ -1,5 +1,6 @@
 import * as express from "express";
 
+import { Logger } from "./utils";
 import { ApiRoute } from "./routes/Api";
 
 
@@ -38,10 +39,19 @@ export class Server
         this.app.listen(port, callback);
     }
 
-    private config(): void {}
+    private config(): void
+    {
+        this.app.use(this.logRequest.bind(this));
+    }
 
     private routes(): void
     {
         this.app.use("/api", new ApiRoute().router);
+    }
+
+    private async logRequest(req: express.Request, res: express.Response, next: express.NextFunction)
+    {
+        Logger.debug(`${req.method}: ${req.originalUrl}`);
+        next();
     }
 }

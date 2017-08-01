@@ -1,3 +1,6 @@
 {
-    "dev": {}
+    "logger": {
+        "level": "debug",
+        "filepath": "logs/blog_DEV.log"
+    }
 }

@@ -1,46 +1,45 @@
+import { Connection } from "typeorm";
+
+import { Logger } from "./utils";
 import { DatabaseManager } from "./DatabaseManager";
 import { Server } from "./Server";
-import { debug, error } from "./utils/Logging";
-import { Role, User } from "./models";
 
+
+let connection: Connection;
 
 async function startup()
 {
     try
     {
-        // establish db connection using ormconfig "dev"
-        const connection = await DatabaseManager.createConnection();
+        Logger.info("Starting back-end");
 
-        // fixture data
-        const roleRepository = connection.getRepository(Role);
-        const userRepository = connection.getRepository(User);
+        // establish db connection
+        connection = await DatabaseManager.createConnection();
 
-        const role: Role = {
-            guid: "non-sense-test-123",
-            name: "Admin",
-            value: "ADMIN"
-
-        };
-        await roleRepository.persist(role);
-
-        const user: User = {
-             guid: "non-sense-user-123",
-             name: "Testikäyttäjä",
-             role
-        };
-        await userRepository.persist(user);
+        // dev only
+        await DatabaseManager.useFixtures();
 
         const application = Server.bootstrap();
         application.start(4730, () =>
         {
-            debug("Server running on port 4730");
+            Logger.info("Server running on port 4730");
         });
     }
     catch (e)
     {
-        error("Connection problem with database:");
-        console.log(e);
+        Logger.error(`Unhandled exception: ${String(e)}`);
+        process.exit(1);
     }
 }
+
+process.on("exit", () => {
+    Logger.info("Shutting down back-end");
+
+    if (typeof connection !== "undefined" && connection !== null)
+    {
+        Logger.debug("Closing active database connections");
+        connection.close();
+    }
+});
 
 startup();

@@ -1,6 +1,8 @@
 import "reflect-metadata";
 import { createConnection, Connection } from "typeorm";
 
+import { Logger, fixtures } from "./utils";
+
 
 class DBManager
 {
@@ -8,8 +10,33 @@ class DBManager
 
     public async createConnection(): Promise<Connection>
     {
-        this.connection = await createConnection("dev");
-        return this.connection;
+        try
+        {
+            this.connection = await createConnection("dev");
+            Logger.debug("Connected to database");
+            return this.connection;
+        }
+        catch (e)
+        {
+            Logger.error(`Error trying to connect to database: ${String(e)}`);
+            throw e;
+        }
+    }
+
+    public async useFixtures()
+    {
+        try
+        {
+            Logger.warn("Using fixtures - THIS WILL CLEAR YOUR CURRENT DATABASE!");
+            await this.connection.dropDatabase();
+            await this.connection.syncSchema();
+            await fixtures();
+            Logger.debug("Fixtures loaded successfully");
+        }
+        catch (e)
+        {
+            Logger.error(`Error loading fixtures to database: ${String(e)}`);
+        }
     }
 }
 

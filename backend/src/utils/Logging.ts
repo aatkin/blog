@@ -1,26 +1,25 @@
+import * as path from "path";
+import * as winston from "winston";
+
+import * as config from "config";
 import * as chalk from "chalk";
 
 
-export function error(message: any, ...params: any[])
-{
-    if (params.length)
-    {
-        console.error(chalk.red("ERROR:"), chalk.red(message), chalk.red.apply(null, [...params]));
-    }
-    else
-    {
-        console.error(chalk.red("ERROR:"), chalk.red(message));
-    }
-}
+// log file options
+const logFilePath: string = config.get("logger.filepath");
+const logLevel: string = config.get("logger.level");
 
-export function debug(message: any, ...params: any[])
-{
-    if (params.length)
-    {
-        console.log(chalk.yellow("DEBUG:"), chalk.yellow(message), chalk.yellow.apply(null, [...params]));
-    }
-    else
-    {
-        console.log(chalk.yellow("DEBUG:"), chalk.yellow(message));
-    }
-}
+const Logger = new (winston.Logger)({
+    transports: [
+        new (winston.transports.Console)({
+            level: "debug",
+            colorize: true
+        }),
+        new (winston.transports.File)({
+            level: logLevel,
+            filename: path.resolve("C:/koodit/blog/backend", logFilePath)
+        })
+    ]
+});
+
+export { Logger };
