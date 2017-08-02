@@ -1,15 +1,21 @@
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import * as express from "express";
 
-import { UserRoute } from "./UserRoute";
+import { Types } from "../../";
+import { IUserRoute } from "./UserRoute";
 
+
+export interface IApiRoute
+{
+    router: express.Router;
+}
 
 @injectable()
 export class ApiRoute
 {
     public router: express.Router;
 
-    constructor(private userRoute: UserRoute)
+    constructor(@inject(Types.UserRoute) private userRoute: IUserRoute)
     {
         this.router = express.Router();
         this.attachRoutes();

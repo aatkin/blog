@@ -1,7 +1,7 @@
 import { Connection } from "typeorm";
 import * as uuid from "uuid/v4";
 
-import { DatabaseManager } from "../DatabaseManager";
+import { DatabaseService } from "../DatabaseService";
 import { Role, User } from "../models";
 
 

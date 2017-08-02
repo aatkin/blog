@@ -1,21 +1,27 @@
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import * as express from "express";
 
-import { UserController } from "../../api";
+import { Types } from "../../";
+import { IUserController } from "../../api";
 
+
+export interface IUserRoute
+{
+    router: express.Router;
+}
 
 @injectable()
-export class UserRoute
+export class UserRoute implements IUserRoute
 {
     public router: express.Router;
 
-    constructor(private controller: UserController)
+    constructor(@inject(Types.UserController) private controller: IUserController)
     {
         this.router = express.Router();
         this.attachRoutes();
     }
 
-    protected attachRoutes(): void
+    private attachRoutes(): void
     {
         this.router.get("/", this.getUser.bind(this));
         this.router.get("/update", this.updateUser.bind(this));

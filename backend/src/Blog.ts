@@ -4,14 +4,15 @@ import { Connection } from "typeorm";
 // container should be imported first..?
 import { container } from "./inversify.config";
 
-import { Logger } from "./utils";
-import { DatabaseManager, Server } from "./";
+import { ILogger } from "./utils";
+import { IDatabaseService, Server, Types } from "./";
+
 
 
 let connection: Connection;
 
-const logger = container.get(Logger);
-const databaseService = container.get(DatabaseManager);
+const logger = container.get<ILogger>(Types.Logger);
+const databaseService = container.get<IDatabaseService>(Types.DatabaseService);
 
 async function startup()
 {

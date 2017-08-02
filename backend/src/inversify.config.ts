@@ -1,22 +1,24 @@
 import { Container } from "inversify";
 
-import { UserController } from "./api";
-import { UserRoute, ApiRoute } from "./routes";
-import { Logger } from "./utils";
-import { DatabaseManager, Server } from "./";
+import { IUserController, UserController } from "./api";
+import { IUserRoute, UserRoute, IApiRoute, ApiRoute } from "./routes";
+import { ILogger, Logger } from "./utils";
+import { IDatabaseService, DatabaseService } from "./";
+
+import { Types } from "./Types";
 
 
 const container = new Container();
 
 // general/utils
-container.bind<Logger>(Logger).toSelf().inSingletonScope();
-container.bind<DatabaseManager>(DatabaseManager).toSelf().inSingletonScope();
+container.bind<ILogger>(Types.Logger).to(Logger).inSingletonScope();
+container.bind<IDatabaseService>(Types.DatabaseService).to(DatabaseService).inSingletonScope();
 
 // api
-container.bind<UserController>(UserController).toSelf();
+container.bind<IUserController>(Types.UserController).to(UserController);
 
 // routes
-container.bind<UserRoute>(UserRoute).toSelf();
-container.bind<ApiRoute>(ApiRoute).toSelf();
+container.bind<IUserRoute>(Types.UserRoute).to(UserRoute);
+container.bind<IApiRoute>(Types.ApiRoute).to(ApiRoute);
 
 export { container };

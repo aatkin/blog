@@ -1,5 +1,8 @@
 /* tslint:disable:no-unused-expression */
 
+// needs to be imported here in order to use container and typeorm properly
+import "reflect-metadata";
+
 import * as mocha from "mocha";
 import * as chai from "chai";
 import chaiHttp = require("chai-http");
@@ -8,6 +11,7 @@ const { expect } = chai;
 chai.use(chaiHttp);
 
 import { Server } from "../../src/Server";
+import { Logger, container } from "../inversify.config.test";
 
 
 describe("simple get route", () =>
@@ -20,7 +24,7 @@ describe("simple get route", () =>
         route.get("/", (req, res, next) => {
             res.status(200).json({ test: true });
         });
-        server = new Server(null, () => {}, (app) => { app.use("/test", route); });
+        server = new Server(container, null, null, (app) => { app.use("/test", route); });
     });
 
     it("should return 200", (done: Function) =>

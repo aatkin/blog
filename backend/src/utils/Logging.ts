@@ -6,8 +6,18 @@ import * as config from "config";
 import * as chalk from "chalk";
 
 
+export interface ILogger
+{
+    error(...args: any[]): void;
+    warn(...args: any[]): void;
+    info(...args: any[]): void;
+    verbose(...args: any[]): void;
+    debug(...args: any[]): void;
+    silly(...args: any[]): void;
+}
+
 @injectable()
-export class Logger
+export class Logger implements ILogger
 {
     private _logger: winston.LoggerInstance;
 

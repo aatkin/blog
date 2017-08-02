@@ -1,8 +1,9 @@
 import { Container, injectable } from "inversify";
 import * as express from "express";
 
-import { Logger } from "./utils";
-import { ApiRoute } from "./routes/Api";
+import { Types } from "./Types";
+import { ILogger } from "./utils";
+import { IApiRoute, ApiRoute } from "./routes/Api";
 
 
 /**
@@ -51,12 +52,12 @@ export class Server
 
     private routes(): void
     {
-        this.app.use("/api", this.container.get(ApiRoute).router);
+        this.app.use("/api", this.container.get<IApiRoute>(Types.ApiRoute).router);
     }
 
     private async logRequest(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        const logger = this.container.get(Logger);
+        const logger = this.container.get<ILogger>(Types.Logger);
         logger.debug(`${req.method}: ${req.originalUrl}`);
         next();
     }

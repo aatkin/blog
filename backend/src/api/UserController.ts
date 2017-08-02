@@ -1,13 +1,19 @@
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 
-import { DatabaseManager } from "../DatabaseManager";
+import { Types } from "../";
+import { IDatabaseService } from "../DatabaseService";
 import { User } from "../models";
 
 
-@injectable()
-export class UserController
+export interface IUserController
 {
-    constructor(private databaseService: DatabaseManager) {}
+    getUsers(): Promise<User[]>;
+}
+
+@injectable()
+export class UserController implements IUserController
+{
+    constructor(@inject(Types.DatabaseService) private databaseService: IDatabaseService) {}
 
     public async getUsers(): Promise<User[]>
     {
