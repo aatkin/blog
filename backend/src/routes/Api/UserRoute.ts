@@ -1,23 +1,31 @@
+import { injectable } from "inversify";
 import * as express from "express";
 
-import { Route } from "../Route";
 import { UserController } from "../../api";
 
 
-export class UserRoute extends Route
+@injectable()
+export class UserRoute
 {
-    protected attachRoutes(router: express.Router): void
+    public router: express.Router;
+
+    constructor(private controller: UserController)
     {
-        router.get("/", this.getUser.bind(this));
-        router.get("/update", this.updateUser.bind(this));
-        router.get("/create", this.createUser.bind(this));
-        router.get("/test", this.getAllUsers.bind(this));
+        this.router = express.Router();
+        this.attachRoutes();
+    }
+
+    protected attachRoutes(): void
+    {
+        this.router.get("/", this.getUser.bind(this));
+        this.router.get("/update", this.updateUser.bind(this));
+        this.router.get("/create", this.createUser.bind(this));
+        this.router.get("/test", this.getAllUsers.bind(this));
     }
 
     private async getAllUsers(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        const controller = new UserController();
-        const users = await controller.getUsers();
+        const users = await this.controller.getUsers();
         res.json({ msg: "route: GET /api/user", users });
     }
 

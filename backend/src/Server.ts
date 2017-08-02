@@ -1,3 +1,4 @@
+import { Container, injectable } from "inversify";
 import * as express from "express";
 
 import { Logger } from "./utils";
@@ -13,7 +14,11 @@ export class Server
 {
     public app: express.Application;
 
-    constructor(app?: express.Application, config?: (app: express.Application) => void, routes?: (app: express.Application) => void)
+    constructor(
+        private container: Container,
+        app?: express.Application,
+        config?: (app: express.Application) => void,
+        routes?: (app: express.Application) => void)
     {
         // create app instance
         this.app = app ? app : express();
@@ -26,9 +31,9 @@ export class Server
     /**
      * Return a new server instance
      */
-    public static bootstrap(): Server
+    public static bootstrap(container: Container): Server
     {
-        return new Server();
+        return new Server(container);
     }
 
     /**
@@ -46,12 +51,13 @@ export class Server
 
     private routes(): void
     {
-        this.app.use("/api", new ApiRoute().router);
+        this.app.use("/api", this.container.get(ApiRoute).router);
     }
 
     private async logRequest(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        Logger.debug(`${req.method}: ${req.originalUrl}`);
+        const logger = this.container.get(Logger);
+        logger.debug(`${req.method}: ${req.originalUrl}`);
         next();
     }
 }

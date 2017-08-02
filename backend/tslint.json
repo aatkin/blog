@@ -17,7 +17,8 @@
         "one-line": [false],
         "no-consecutive-blank-lines": false,
         "no-any": false,
-        "variable-name": false
+        "variable-name": false,
+        "no-parameter-properties": false
     },
 
     "rulesDirectory": [

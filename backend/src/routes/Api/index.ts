@@ -1,18 +1,27 @@
+import { injectable } from "inversify";
 import * as express from "express";
 
-import { Route } from "../Route";
 import { UserRoute } from "./UserRoute";
 
 
-export class ApiRoute extends Route
+@injectable()
+export class ApiRoute
 {
-    protected attachRoutes(router: express.Router): void
+    public router: express.Router;
+
+    constructor(private userRoute: UserRoute)
+    {
+        this.router = express.Router();
+        this.attachRoutes();
+    }
+
+    protected attachRoutes(): void
     {
         // index route handlers
-        router.get("/", this.getIndex.bind(this));
+        this.router.get("/", this.getIndex.bind(this));
 
         // subroute handlers
-        router.use("/user", new UserRoute().router);
+        this.router.use("/user", this.userRoute.router);
     }
 
     private getIndex(req: express.Request, res: express.Response, next: express.NextFunction): void
@@ -20,3 +29,5 @@ export class ApiRoute extends Route
         res.json({ msg: "route: GET /api" });
     }
 }
+
+export * from "./UserRoute";

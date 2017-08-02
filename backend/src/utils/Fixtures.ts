@@ -5,10 +5,8 @@ import { DatabaseManager } from "../DatabaseManager";
 import { Role, User } from "../models";
 
 
-export async function fixtures()
+export async function fixtures(connection: Connection)
 {
-    const connection = DatabaseManager.connection;
-
     const userRepository = connection.getRepository(User);
     const roleRepository = connection.getRepository(Role);
 
