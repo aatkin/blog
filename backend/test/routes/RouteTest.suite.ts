@@ -11,7 +11,7 @@ const { expect } = chai;
 chai.use(chaiHttp);
 
 import { Server } from "../../src/Server";
-import { Logger, container } from "../inversify.config.test";
+import { container } from "../inversify.config.test";
 
 
 describe("simple get route", () =>

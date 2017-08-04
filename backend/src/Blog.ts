@@ -8,7 +8,6 @@ import { ILogger } from "./utils";
 import { IDatabaseService, Server, Types } from "./";
 
 
-
 let connection: Connection;
 
 const logger = container.get<ILogger>(Types.Logger);
