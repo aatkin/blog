@@ -4,7 +4,7 @@ import { Connection } from "typeorm";
 // container should be imported first..?
 import { container } from "./inversify.config";
 
-import { ILogger } from "./utils";
+import { ILogger, fixtures } from "./utils";
 import { IDatabaseService, Server, Types } from "./";
 
 
@@ -39,7 +39,8 @@ async function startup()
     }
 }
 
-process.on("exit", () => {
+process.on("exit", () =>
+{
     logger.info("Shutting down back-end");
 
     if (typeof connection !== "undefined" && connection !== null)

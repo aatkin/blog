@@ -12,6 +12,7 @@
         "entities": [
             "./dist/models/**/*.js"
         ],
-        "autoSchemaSync": true
+        "autoSchemaSync": true,
+        "logging": true
     }
 ]

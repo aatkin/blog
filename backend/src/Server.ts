@@ -1,8 +1,9 @@
 import { Container, injectable } from "inversify";
 import * as express from "express";
+import * as bodyParser from "body-parser";
 
 import { Types } from "./Types";
-import { ILogger } from "./utils";
+import { ILogger, IAuthenticationService, AuthenticationCredentials } from "./utils";
 import { IApiRoute, ApiRoute } from "./routes/Api";
 
 
@@ -47,12 +48,23 @@ export class Server
 
     private config(): void
     {
+        // log all requests
         this.app.use(this.logRequest.bind(this));
+        // parse body from requests
+        this.app.use(bodyParser.json());
+
+        // use passport authentication
+        const authenticationService = this.container.get<IAuthenticationService>(Types.AuthenticationService);
+        this.app.use(authenticationService.initialize());
     }
 
     private routes(): void
     {
-        this.app.use("/api", this.container.get<IApiRoute>(Types.ApiRoute).router);
+        const apiRoute = this.container.get<IApiRoute>(Types.ApiRoute);
+        const authenticationService = this.container.get<IAuthenticationService>(Types.AuthenticationService);
+
+        this.app.use("/api", authenticationService.authenticate(), apiRoute.router);
+        this.app.post("/authenticate", this.authenticate.bind(this));
     }
 
     private async logRequest(req: express.Request, res: express.Response, next: express.NextFunction)
@@ -60,5 +72,33 @@ export class Server
         const logger = this.container.get<ILogger>(Types.Logger);
         logger.debug(`${req.method}: ${req.originalUrl}`);
         next();
+    }
+
+    private async authenticate(req: express.Request, res: express.Response)
+    {
+        if (req.body.userName && req.body.password)
+        {
+            const credentials: AuthenticationCredentials = {
+                userName: req.body.userName,
+                password: req.body.password
+            };
+
+            const authenticationService = this.container.get<IAuthenticationService>(Types.AuthenticationService);
+            const token = await authenticationService.getToken(credentials);
+
+            if (token !== null)
+            {
+                // authentication ok
+                res.json({ token });
+            }
+            else
+            {
+                res.sendStatus(401);
+            }
+        }
+        else
+        {
+            res.sendStatus(401);
+        }
     }
 }

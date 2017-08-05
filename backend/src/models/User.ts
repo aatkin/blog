@@ -12,6 +12,12 @@ export class User
     @Column()
     public name: string;
 
+    @Column()
+    public password: string;
+
+    @Column()
+    public isFixture: boolean;
+
     @OneToOne(type => Role)
     @JoinColumn()
     public role: Role;

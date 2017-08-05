@@ -10,7 +10,8 @@ const Types = {
     Logger: Symbol("Logger"),
 
     // main
-    DatabaseService: Symbol("DatabaseService")
+    DatabaseService: Symbol("DatabaseService"),
+    AuthenticationService: Symbol("AuthenticationService")
 };
 
 export { Types };

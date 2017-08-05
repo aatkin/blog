@@ -44,23 +44,7 @@ export class DatabaseService implements IDatabaseService
             await this.connection.dropDatabase();
             await this.connection.syncSchema();
 
-            const userRepository = this.connection.getRepository(User);
-            const roleRepository = this.connection.getRepository(Role);
-
-            const role: Role = {
-                guid: uuid(),
-                name: "Admin",
-                value: "ADMIN"
-
-            };
-            await roleRepository.persist(role);
-
-            const user: User = {
-                    guid: uuid(),
-                    name: "Testikäyttäjä",
-                    role
-            };
-            await userRepository.persist(user);
+            fixtures(this.connection);
 
             this.logger.debug("Fixtures loaded successfully");
         }
