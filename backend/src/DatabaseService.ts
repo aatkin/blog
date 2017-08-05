@@ -41,7 +41,6 @@ export class DatabaseService implements IDatabaseService
         try
         {
             this.logger.warn("Using fixtures - THIS WILL CLEAR YOUR CURRENT DATABASE!");
-            await this.connection.dropDatabase();
             await this.connection.syncSchema();
 
             fixtures(this.connection);

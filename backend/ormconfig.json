@@ -2,17 +2,20 @@
     {
         "name": "dev",
         "driver": {
-        "type": "postgres",
-        "host": "localhost",
-        "port": 5432,
-        "username": "blog",
-        "password": "sql123",
-        "database": "blog-DEV"
+            "type": "postgres",
+            "host": "localhost",
+            "port": 5432,
+            "username": "blog",
+            "password": "sql123",
+            "database": "blog-DEV"
         },
         "entities": [
             "./dist/models/**/*.js"
         ],
+        "dropSchemaOnConnection": true,
         "autoSchemaSync": true,
-        "logging": true
+        "logging": {
+            "logQueries": true
+        }
     }
 ]
