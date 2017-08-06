@@ -6,9 +6,8 @@ import { ExtractJwt, Strategy, StrategyOptions } from "passport-jwt";
 import * as jwt from "jwt-simple";
 import * as config from "config";
 
-import { getUserFixtures } from "./Fixtures";
 import { Types } from "../Types";
-import { IDatabaseService } from "../DatabaseService";
+import { IUserController } from "../api";
 
 
 export interface AuthenticationCredentials
@@ -27,7 +26,7 @@ export interface IAuthenticationService
 @injectable()
 export class AuthenticationService implements IAuthenticationService
 {
-    constructor(@inject(Types.DatabaseService) private databaseService: IDatabaseService)
+    constructor(@inject(Types.UserController) private userController: IUserController)
     {
         const params: StrategyOptions = {
             secretOrKey: config.get("authentication.jwtSecret"),
@@ -36,9 +35,7 @@ export class AuthenticationService implements IAuthenticationService
 
         const strategy = new Strategy(params, async (payload, done) =>
         {
-            // fixture use only
-            const users = await getUserFixtures(databaseService.connection);
-            const user = users.find(x => x.guid === payload.guid);
+            const user = await userController.getUser({ guid: payload.guid });
 
             if (user)
             {
@@ -65,8 +62,7 @@ export class AuthenticationService implements IAuthenticationService
 
     public async getToken(credentials: AuthenticationCredentials): Promise<string>
     {
-        const users = await getUserFixtures(this.databaseService.connection);
-        const user = users.find(user => user.name === credentials.userName);
+        const user = await this.userController.getUser({ name: credentials.userName });
 
         if (user && await bcrypt.compare(credentials.password, user.password))
         {

@@ -15,7 +15,7 @@ export class UserRoute implements IUserRoute
 {
     public router: express.Router;
 
-    constructor(@inject(Types.UserController) private controller: IUserController)
+    constructor(@inject(Types.UserController) private userController: IUserController)
     {
         this.router = express.Router();
         this.attachRoutes();
@@ -31,13 +31,14 @@ export class UserRoute implements IUserRoute
 
     private async getAllUsers(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        const users = await this.controller.getUsers();
-        res.json({ msg: "route: GET /api/user", users });
+        const users = await this.userController.getUsers();
+        res.json({ users });
     }
 
     private async getUser(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        res.json({ msg: "route: GET /api/user" });
+        const user = await this.userController.getUser(req.body.user);
+        res.json({ user });
     }
 
     private async updateUser(req: express.Request, res: express.Response, next: express.NextFunction)

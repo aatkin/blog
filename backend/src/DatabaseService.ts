@@ -40,11 +40,8 @@ export class DatabaseService implements IDatabaseService
     {
         try
         {
-            this.logger.warn("Using fixtures - THIS WILL CLEAR YOUR CURRENT DATABASE!");
-            await this.connection.syncSchema();
-
-            fixtures(this.connection);
-
+            this.logger.warn("Loading fixtures into database");
+            await fixtures(this.connection);
             this.logger.debug("Fixtures loaded successfully");
         }
         catch (e)

@@ -15,23 +15,23 @@ export async function fixtures(connection: Connection)
         guid: uuid(),
         name: "Admin",
         value: "ADMIN"
-
     };
     await roleRepository.persist(role);
 
-    const user: User = {
+    const user_1: User = {
             guid: uuid(),
-            name: "Testikäyttäjä",
-            password: await bcrypt.hash("blogAdmin", await bcrypt.genSalt()),
+            name: "Administrator",
+            password: await bcrypt.hash("admin123", await bcrypt.genSalt()),
             isFixture: true,
             role
     };
-    await userRepository.persist(user);
-}
-
-export async function getUserFixtures(connection: Connection): Promise<User[]>
-{
-    const userRepository = connection.getRepository(User);
-    const fixtureUsers = await userRepository.find({ isFixture: true });
-    return fixtureUsers;
+    const user_2: User = {
+            guid: uuid(),
+            name: "Nasse",
+            password: await bcrypt.hash("nasse123", await bcrypt.genSalt()),
+            isFixture: true,
+            role
+    };
+    await userRepository.persist(user_1);
+    await userRepository.persist(user_2);
 }
