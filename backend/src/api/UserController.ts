@@ -2,13 +2,13 @@ import { injectable, inject } from "inversify";
 
 import { Types } from "../";
 import { IDatabaseService } from "../DatabaseService";
-import { User } from "../models";
+import { User, UserParams } from "../models";
 
 
 export interface IUserController
 {
     getUsers(): Promise<User[]>;
-    getUser(user: any): Promise<User>;
+    getUser(userParams: UserParams): Promise<User>;
 }
 
 @injectable()
@@ -23,10 +23,10 @@ export class UserController implements IUserController
         return users;
     }
 
-    public async getUser(findParams: any): Promise<User>
+    public async getUser(userParams: UserParams): Promise<User>
     {
         const userRepository = await this.databaseService.connection.getRepository(User);
-        const user = await userRepository.findOne(findParams);
+        const user = await userRepository.findOne(userParams);
         return user;
     }
 }

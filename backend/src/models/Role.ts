@@ -1,5 +1,7 @@
 import { Entity, Column, PrimaryColumn } from "typeorm";
 
+import { Partial } from "../utils";
+
 
 @Entity()
 export class Role
@@ -13,3 +15,7 @@ export class Role
     @Column()
     public value: string;
 }
+
+type RoleParams = Partial<Role>;
+
+export { RoleParams };

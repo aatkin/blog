@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryColumn, OneToOne, JoinColumn } from "typeorm";
 
+import { Partial } from "../utils";
 import { Role } from "./Role";
 
 
@@ -22,3 +23,7 @@ export class User
     @JoinColumn()
     public role: Role;
 }
+
+type UserParams = Partial<User>;
+
+export { UserParams };
