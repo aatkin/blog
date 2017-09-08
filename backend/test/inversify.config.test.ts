@@ -19,8 +19,8 @@ export class MockLogger
 @injectable()
 export class MockAuthenticationService
 {
-    public initialize(): express.Handler{ return (req, res, next) => { next(); } }
-    public authenticate(): express.Handler{ return (req, res, next) => { next(); } }
+    public initialize(): express.Handler { return (req, res, next) => { next(); }; }
+    public authenticate(): express.Handler { return (req, res, next) => { next(); }; }
     public getToken(credentials: any): any {}
 }
 

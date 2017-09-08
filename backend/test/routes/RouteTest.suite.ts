@@ -21,7 +21,8 @@ describe("simple get route", () =>
     before(() =>
     {
         const route = express.Router();
-        route.get("/", (req, res, next) => {
+        route.get("/", (req, res, next) =>
+        {
             res.status(200).json({ test: true });
         });
         server = new Server(container, null, null, (app) => { app.use("/test", route); });

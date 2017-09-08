@@ -26,7 +26,7 @@ export class DatabaseService implements IDatabaseService
         try
         {
             this.connection = await createConnection("dev");
-            this.logger.debug("Connected to database");
+            this.logger.debug("Connected to database!");
             return this.connection;
         }
         catch (e)
