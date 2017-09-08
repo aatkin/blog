@@ -18,7 +18,8 @@
         "no-consecutive-blank-lines": false,
         "no-any": false,
         "variable-name": false,
-        "no-parameter-properties": false
+        "no-parameter-properties": false,
+        "interface-name": false
     },
 
     "rulesDirectory": [
