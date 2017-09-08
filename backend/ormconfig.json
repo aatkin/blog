@@ -6,8 +6,8 @@
             "host": "localhost",
             "port": 5432,
             "username": "blog",
-            "password": "sql123",
-            "database": "blog-DEV"
+            "password": "secret123",
+            "database": "blog"
         },
         "entities": [
             "./dist/models/**/*.js"

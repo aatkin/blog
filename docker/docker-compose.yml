@@ -1,0 +1,26 @@
+version: '3'
+services:
+    nginx:
+        image: nginx:1.12
+        ports:
+            - "80:80"
+            - "4730:4730"
+        volumes:
+            - blog-static:/var/www/blog
+            - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+        restart: always
+
+    postgres:
+        image: postgres:9.6.5
+        ports:
+            - 5432:5432
+        volumes:
+            - blog-db:/var/lib/postgresql/data
+        restart: on-failure
+        environment:
+            POSTGRES_USER: blog
+            POSTGRES_PASSWORD: secret123
+            POSTGRES_DB: blog
+volumes:
+    blog-static:
+    blog-db:
