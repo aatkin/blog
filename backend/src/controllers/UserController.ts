@@ -135,7 +135,7 @@ export class UserController implements IUserController
 
             const userParams: UserParams = {
                 guid: uuid(),
-                password: bcrypt.hashSync(params.password, bcrypt.genSaltSync()),
+                password: await bcrypt.hash(params.password, await bcrypt.genSalt()),
                 isFixture: params.isFixture,
                 name: params.name
             };

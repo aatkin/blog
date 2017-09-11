@@ -31,7 +31,10 @@ export class PageRoute implements IPageRoute
     {
         return {
             route: "page",
-            routes: []
+            routes: [
+                { method: "GET", route: "/" },
+                { method: "POST", route: "/", params: "page" }
+            ]
         };
     }
 
@@ -40,7 +43,7 @@ export class PageRoute implements IPageRoute
         this.router.get("/", this.getAllPages.bind(this));
         this.router.post("/", this.validateBody, this.getPage.bind(this));
         // this.router.post("/update", this.validateBody, this.updateUser.bind(this));
-        // this.router.get("/create", this.createUser.bind(this));
+        // this.router.get("/create", this.validateBody, this.createPage.bind(this));
     }
 
     private validateBody(req: express.Request, res: express.Response, next: express.NextFunction)
@@ -92,4 +95,13 @@ export class PageRoute implements IPageRoute
             next(e);
         }
     }
+
+    // private async createPage(req: express.Request, res: express.Response, next: express.NextFunction)
+    // {
+    //     try
+    //     {
+    //         const page = await this.pageController.createPageAsync({ title, guid });
+    //         return res.json({ page });
+    //     }
+    // }
 }

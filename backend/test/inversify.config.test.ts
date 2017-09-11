@@ -1,7 +1,8 @@
 import { Container, injectable } from "inversify";
 import * as express from "express";
 
-import { ILoggerService, IAuthenticationService } from "../src/utils";
+import { ILoggerService } from "../src/services/LoggerService";
+import { IAuthenticationController } from "../src/controllers/AuthenticationController";
 import { Types } from "../src/Types";
 
 
@@ -17,7 +18,7 @@ export class MockLogger
 }
 
 @injectable()
-export class MockAuthenticationService
+export class MockAuthenticationController
 {
     public initialize(): express.Handler { return (req, res, next) => { next(); }; }
     public authenticate(): express.Handler { return (req, res, next) => { next(); }; }
@@ -27,6 +28,6 @@ export class MockAuthenticationService
 const container = new Container();
 
 container.bind<ILoggerService>(Types.Logger).to(MockLogger).inSingletonScope();
-container.bind<IAuthenticationService>(Types.AuthenticationService).to(MockAuthenticationService).inSingletonScope();
+container.bind<IAuthenticationController>(Types.AuthenticationController).to(MockAuthenticationController).inSingletonScope();
 
 export { container };

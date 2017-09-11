@@ -1,15 +1,19 @@
 import { injectable, inject } from "inversify";
+import * as uuid from "uuid/v4";
 
 import { Types } from "../Types";
 import { IDatabaseService } from "../services/DatabaseService";
 import { ILoggerService } from "../services/LoggerService";
 import { Page, PageParams } from "../entities/Page";
+import { User } from "../entities/User";
 
 
 export interface IPageController
 {
     getPagesAsync(): Promise<Page[]>;
     getPageAsync(pageParams: PageParams): Promise<Page>;
+    createPageAsync(user: User): Promise<Page>;
+    // updatePageAsync(pageParams: PageParams): Promise<Page>;
 }
 
 @injectable()
@@ -74,4 +78,25 @@ export class PageController implements IPageController
             throw e;
         }
     }
+
+    public async createPageAsync(user: User): Promise<Page>
+    {
+        try
+        {
+            const pageRepository = await this.databaseService.connection.getRepository(Page);
+            const newPage = new Page(uuid(), user);
+            await pageRepository.persist(newPage);
+            return newPage;
+        }
+        catch (e)
+        {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+
+    // public async updatePageAsync(pageParams: PageParams): Promise<Page>
+    // {
+    //     throw new Error("not implemented yet");
+    // }
 }

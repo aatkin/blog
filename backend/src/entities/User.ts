@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryColumn, OneToOne, JoinColumn, Index } from "typeorm";
+import { Entity, Column, PrimaryColumn, OneToOne, OneToMany, JoinColumn, Index } from "typeorm";
 
 import { Partial } from "../utils/Partial";
 import { Role } from "./Role";
+import { Page } from "./Page";
 
 
 @Entity()
@@ -23,6 +24,9 @@ export class User
     @OneToOne(t => Role)
     @JoinColumn()
     public role: Role;
+
+    @OneToMany(t => Page, page => page.owner)
+    public pages: Page[];
 
     constructor(guid: string, name: string, password: string, isFixture: boolean, role: Role)
     {

@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, VersionColumn, Index } from "typeorm";
+import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, VersionColumn, Index, ManyToOne } from "typeorm";
 
 import { Partial } from "../utils/Partial";
 import { PageContent } from "../models/PageContent";
+import { User } from "../entities/User";
 
 
 @Entity()
@@ -17,6 +18,9 @@ export class Page
     @Index()
     public title: string;
 
+    @ManyToOne(t => User, user => user.pages)
+    public owner: User;
+
     @CreateDateColumn()
     public createdDate: Date;
 
@@ -25,6 +29,12 @@ export class Page
 
     @VersionColumn()
     public version: number;
+
+    constructor(guid: string, owner: User)
+    {
+        this.guid = guid;
+        this.owner = owner;
+    }
 }
 
 type PageParams = Partial<Page>;
