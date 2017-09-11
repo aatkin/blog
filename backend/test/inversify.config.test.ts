@@ -1,7 +1,7 @@
 import { Container, injectable } from "inversify";
 import * as express from "express";
 
-import { ILogger, IAuthenticationService } from "../src/utils";
+import { ILoggerService, IAuthenticationService } from "../src/utils";
 import { Types } from "../src/Types";
 
 
@@ -26,7 +26,7 @@ export class MockAuthenticationService
 
 const container = new Container();
 
-container.bind<ILogger>(Types.Logger).to(MockLogger).inSingletonScope();
+container.bind<ILoggerService>(Types.Logger).to(MockLogger).inSingletonScope();
 container.bind<IAuthenticationService>(Types.AuthenticationService).to(MockAuthenticationService).inSingletonScope();
 
 export { container };

@@ -3,8 +3,8 @@ import { createConnection, Connection } from "typeorm";
 import * as uuid from "uuid/v4";
 import * as config from "config";
 
-import { Types } from "./Types";
-import { ILoggerService } from "./services/LoggerService";
+import { Types } from "../Types";
+import { ILoggerService } from "../services/LoggerService";
 
 
 export interface IDatabaseService

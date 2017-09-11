@@ -3,6 +3,7 @@ import * as express from "express";
 
 import { Types } from "../../Types";
 import { IUserRoute } from "./UserRoute";
+import { IPageRoute } from "./PageRoute";
 
 
 export interface IApiRoute
@@ -15,7 +16,8 @@ export class ApiRoute
 {
     public router: express.Router;
 
-    constructor(@inject(Types.UserRoute) private userRoute: IUserRoute)
+    constructor(@inject(Types.UserRoute) private userRoute: IUserRoute,
+                @inject(Types.PageRoute) private pageRoute: IPageRoute)
     {
         this.router = express.Router();
         this.attachRoutes();
@@ -28,11 +30,13 @@ export class ApiRoute
 
         // subroute handlers
         this.router.use("/user", this.userRoute.router);
+        this.router.use("/page", this.userRoute.router);
     }
 
     private getIndex(req: express.Request, res: express.Response, next: express.NextFunction): void
     {
-        res.json({ msg: "route: GET /api" });
+        const routes = [this.userRoute.getRouteInformation(), this.pageRoute.getRouteInformation()];
+        res.json({ routes });
     }
 }
 

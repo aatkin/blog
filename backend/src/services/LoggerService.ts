@@ -6,7 +6,7 @@ import * as config from "config";
 import * as chalk from "chalk";
 
 
-export interface ILogger
+export interface ILoggerService
 {
     error(...args: any[]): void;
     warn(...args: any[]): void;
@@ -17,7 +17,7 @@ export interface ILogger
 }
 
 @injectable()
-export class Logger implements ILogger
+export class LoggerService implements ILoggerService
 {
     private _logger: winston.LoggerInstance;
 

@@ -3,7 +3,8 @@ import * as uuid from "uuid/v4";
 import * as bcrypt from "bcrypt";
 
 import { Types } from "../Types";
-import { IDatabaseService } from "../DatabaseService";
+import { IDatabaseService } from "../services/DatabaseService";
+import { ILoggerService } from "../services/LoggerService";
 import { User, UserParams } from "../entities/User";
 import { Role, RoleParams } from "../entities/Role";
 import { Actor } from "../models/Actor";
@@ -11,7 +12,6 @@ import { NewUser } from "../models/NewUser";
 import { Exception } from "../exceptions/Exception";
 import { DatabaseException } from "../exceptions/DatabaseException";
 import { UserNotFoundException } from "../exceptions/UserNotFoundException";
-import { ILogger } from "../utils/Logging";
 
 
 export interface IUserController
@@ -26,7 +26,7 @@ export interface IUserController
 export class UserController implements IUserController
 {
     constructor(@inject(Types.DatabaseService) private databaseService: IDatabaseService,
-                @inject(Types.Logger) private logger: ILogger) {}
+                @inject(Types.Logger) private logger: ILoggerService) {}
 
     public async getActorsAsync(): Promise<Actor[]>
     {
@@ -53,13 +53,25 @@ export class UserController implements IUserController
         try
         {
             const userRepository = await this.databaseService.connection.getRepository(User);
-            const queryParams = {
-                alias: "user",
-                innerJoinAndSelect: {
-                    role: "user.role"
-                }
-            };
-            const user = await userRepository.findOne(userParams, queryParams);
+            let user;
+
+            if (userParams.guid != null)
+            {
+                user = await userRepository
+                    .createQueryBuilder("user")
+                    .where("user.guid IS :keyword", { keyword: userParams.guid })
+                    .innerJoinAndSelect("user.role", "role")
+                    .getOne();
+            }
+            else
+            {
+                user = await userRepository
+                    .createQueryBuilder("user")
+                    .where("user.name LIKE :keyword", { keyword: `%${userParams.name}%` })
+                    .innerJoinAndSelect("user.role", "role")
+                    .getOne();
+            }
+
 
             if (user != null)
             {

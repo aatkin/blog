@@ -3,16 +3,18 @@ import * as express from "express";
 
 import { Types } from "../../Types";
 import { IUserController } from "../../controllers/UserController";
-import { ILogger } from "../../utils/Logging";
+import { ILoggerService } from "../../services/LoggerService";
 import { ValidationException } from "../../exceptions/ValidationException";
 import { DatabaseException } from "../../exceptions/DatabaseException";
 import { UserNotFoundException } from "../../exceptions/UserNotFoundException";
+import { UserParams } from "../../entities/User";
 import { Errors } from "../../constants/Errors";
 
 
 export interface IUserRoute
 {
     router: express.Router;
+    getRouteInformation(): any;
 }
 
 @injectable()
@@ -21,10 +23,23 @@ export class UserRoute implements IUserRoute
     public router: express.Router;
 
     constructor(@inject(Types.UserController) private userController: IUserController,
-                @inject(Types.Logger) private logger: ILogger)
+                @inject(Types.Logger) private logger: ILoggerService)
     {
         this.router = express.Router();
         this.attachRoutes();
+    }
+
+    public getRouteInformation(): any
+    {
+        return {
+            route: "user",
+            routes: [
+                { method: "GET", url: "/" },
+                { method: "POST", url: "/", params: "user" },
+                { method: "POST", url: "/update", params: "user" },
+                { method: "POST", url: "/create", params: "user" }
+            ]
+        };
     }
 
     private attachRoutes(): void
@@ -32,7 +47,7 @@ export class UserRoute implements IUserRoute
         this.router.get("/", this.getAllActors.bind(this));
         this.router.post("/", this.validateBody, this.getActor.bind(this));
         this.router.post("/update", this.validateBody, this.updateUser.bind(this));
-        // this.router.get("/create", this.createUser.bind(this));
+        this.router.post("/create", this.validateBody, this.createUser.bind(this));
     }
 
     private validateBody(req: express.Request, res: express.Response, next: express.NextFunction)
@@ -66,7 +81,7 @@ export class UserRoute implements IUserRoute
 
     private async getActor(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        const { name } = req.body.user;
+        const { name } = <UserParams>(req.body.user);
 
         if (name == null)
         {
@@ -87,7 +102,7 @@ export class UserRoute implements IUserRoute
 
     private async updateUser(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        const { guid, name, password, role } = req.body.user;
+        const { guid, name, password, role } = <UserParams>(req.body.user);
 
         if (guid == null)
         {
@@ -108,7 +123,8 @@ export class UserRoute implements IUserRoute
             if (password != null) { Object.assign(changeSet, { password }); }
             if (role != null) { Object.assign(changeSet, { role }); }
 
-            this.userController.updateUserAsync(guid, changeSet);
+            const actor = await this.userController.updateUserAsync(guid, changeSet);
+            res.json({ actor });
         }
         catch (e)
         {

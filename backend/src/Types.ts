@@ -1,10 +1,12 @@
 const Types = {
     // api
     UserController: Symbol("UserController"),
+    PageController: Symbol("PageController"),
 
     // routes
-    UserRoute: Symbol("UserRoute"),
     ApiRoute: Symbol("ApiRoute"),
+    UserRoute: Symbol("UserRoute"),
+    PageRoute: Symbol("PageRoute"),
 
     // utils
     Logger: Symbol("Logger"),

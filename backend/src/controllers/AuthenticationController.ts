@@ -8,8 +8,8 @@ import * as NodeCache from "node-cache";
 import * as config from "config";
 
 import { Types } from "../Types";
-import { IDatabaseService } from "../DatabaseService";
-import { ILogger } from "../utils/Logging";
+import { IDatabaseService } from "../services/DatabaseService";
+import { ILoggerService } from "../services/LoggerService";
 import { User, UserParams } from "../entities";
 import { Errors } from "../constants/Errors";
 import { Time } from "../constants/Time";
@@ -34,7 +34,7 @@ export class AuthenticationController implements IAuthenticationController
     private authenticationCache: NodeCache;
 
     constructor(@inject(Types.DatabaseService) private databaseService: IDatabaseService,
-                @inject(Types.Logger) private logger: ILogger)
+                @inject(Types.Logger) private logger: ILoggerService)
     {
         this.authenticationCache = new NodeCache();
 

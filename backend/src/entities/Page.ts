@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, VersionColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, VersionColumn, Index } from "typeorm";
 
 import { Partial } from "../utils/Partial";
 import { PageContent } from "../models/PageContent";
@@ -14,6 +14,7 @@ export class Page
     public content: PageContent;
 
     @Column()
+    @Index()
     public title: string;
 
     @CreateDateColumn()

@@ -3,7 +3,7 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 
 import { Types } from "./Types";
-import { ILogger } from "./utils/Logging";
+import { ILoggerService } from "./services/LoggerService";
 import { IAuthenticationController, AuthenticationCredentials } from "./controllers/AuthenticationController";
 import { IApiRoute, ApiRoute } from "./routes/Api";
 
@@ -76,7 +76,7 @@ export class Server
 
     private async logRequest(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        const logger = this.container.get<ILogger>(Types.Logger);
+        const logger = this.container.get<ILoggerService>(Types.Logger);
         logger.debug(`${req.method}: ${req.originalUrl} - ${req.body}`);
         next();
     }
@@ -112,10 +112,9 @@ export class Server
     private async handleError(err: any, req: express.Request, res: express.Response, next: express.NextFunction)
     {
         // handle prod errors as well
-        const logger = this.container.get<ILogger>(Types.Logger);
+        const logger = this.container.get<ILoggerService>(Types.Logger);
         logger.error(err);
-        res.status(500);
-        res.render("error", {
+        res.status(500).json({
              message: err.message,
              error: err
         });

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, OneToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn, OneToOne, JoinColumn, Index } from "typeorm";
 
 import { Partial } from "../utils/Partial";
 import { Role } from "./Role";
@@ -11,6 +11,7 @@ export class User
     public guid: string;
 
     @Column()
+    @Index()
     public name: string;
 
     @Column()
