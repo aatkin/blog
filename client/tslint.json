@@ -2,6 +2,24 @@
     "extends": "tslint-microsoft-contrib",
     "rules": {
         "missing-jsdoc": 0,
-        "quotemark": ["double"]
-    }
+        "quotemark": ["double"],
+        "no-console": [false],
+        "export-name": 0,
+        "no-relative-imports": 0,
+        "no-reference": false,
+        "typedef": [false],
+        "no-require-imports": false,
+
+        "no-empty": false,
+        "one-line": [false],
+        "no-consecutive-blank-lines": false,
+        "no-any": false,
+        "variable-name": false,
+        "no-parameter-properties": false,
+        "interface-name": false
+    },
+
+    "rulesDirectory": [
+        "node_modules/tslint-no-unused-expression-chai/rules"
+    ]
 }

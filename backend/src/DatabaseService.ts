@@ -1,17 +1,16 @@
 import { injectable, inject } from "inversify";
 import { createConnection, Connection } from "typeorm";
 import * as uuid from "uuid/v4";
+import * as config from "config";
 
 import { Types } from "./Types";
-import { ILogger, fixtures } from "./utils";
-import { Role, User } from "./models";
+import { ILogger } from "./utils/Logging";
 
 
 export interface IDatabaseService
 {
     connection: Connection;
     createConnection(): Promise<Connection>;
-    useFixtures(): Promise<void>;
 }
 
 @injectable()
@@ -25,28 +24,22 @@ export class DatabaseService implements IDatabaseService
     {
         try
         {
-            this.connection = await createConnection("dev");
+            this.connection = await createConnection();
             this.logger.debug("Connected to database!");
+
+            if (config.get<boolean>("database.migrations"))
+            {
+                this.logger.debug("Running migrations");
+                await this.connection.runMigrations();
+                this.logger.debug("Migrations run succesfully");
+            }
+
             return this.connection;
         }
         catch (e)
         {
             this.logger.error(`Error trying to connect to database: ${String(e)}`);
             throw e;
-        }
-    }
-
-    public async useFixtures()
-    {
-        try
-        {
-            this.logger.warn("Loading fixtures into database");
-            await fixtures(this.connection);
-            this.logger.debug("Fixtures loaded successfully");
-        }
-        catch (e)
-        {
-            this.logger.error(`Error loading fixtures to database: ${String(e)}`);
         }
     }
 }

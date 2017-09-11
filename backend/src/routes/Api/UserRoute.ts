@@ -1,8 +1,13 @@
 import { injectable, inject } from "inversify";
 import * as express from "express";
 
-import { Types } from "../../";
-import { IUserController } from "../../api";
+import { Types } from "../../Types";
+import { IUserController } from "../../controllers/UserController";
+import { ILogger } from "../../utils/Logging";
+import { ValidationException } from "../../exceptions/ValidationException";
+import { DatabaseException } from "../../exceptions/DatabaseException";
+import { UserNotFoundException } from "../../exceptions/UserNotFoundException";
+import { Errors } from "../../constants/Errors";
 
 
 export interface IUserRoute
@@ -15,7 +20,8 @@ export class UserRoute implements IUserRoute
 {
     public router: express.Router;
 
-    constructor(@inject(Types.UserController) private userController: IUserController)
+    constructor(@inject(Types.UserController) private userController: IUserController,
+                @inject(Types.Logger) private logger: ILogger)
     {
         this.router = express.Router();
         this.attachRoutes();
@@ -23,27 +29,96 @@ export class UserRoute implements IUserRoute
 
     private attachRoutes(): void
     {
-        this.router.get("/", this.getUser.bind(this));
-        this.router.get("/update", this.updateUser.bind(this));
-        this.router.get("/create", this.createUser.bind(this));
-        this.router.get("/test", this.getAllUsers.bind(this));
+        this.router.get("/", this.getAllActors.bind(this));
+        this.router.post("/", this.validateBody, this.getActor.bind(this));
+        this.router.post("/update", this.validateBody, this.updateUser.bind(this));
+        // this.router.get("/create", this.createUser.bind(this));
     }
 
-    private async getAllUsers(req: express.Request, res: express.Response, next: express.NextFunction)
+    private validateBody(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        const users = await this.userController.getUsers();
-        res.json({ users });
+        if (!req.body)
+        {
+            // return next(new ValidationException("Request body is null or undefined"));
+            return res.status(400).json({ error: "Request body is null or undefined" });
+        }
+        if (!req.body.user || typeof req.body.user !== "object")
+        {
+            // return next(new ValidationException("Request body must include user object"));
+            return res.status(400).json({ error: "Request body must include user object" });
+        }
+
+        next();
     }
 
-    private async getUser(req: express.Request, res: express.Response, next: express.NextFunction)
+    private async getAllActors(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        const user = await this.userController.getUser(req.body.user);
-        res.json({ user });
+        try
+        {
+            const actors = await this.userController.getActorsAsync();
+            res.json({ actors });
+        }
+        catch (e)
+        {
+            next(e);
+        }
+    }
+
+    private async getActor(req: express.Request, res: express.Response, next: express.NextFunction)
+    {
+        const { name } = req.body.user;
+
+        if (name == null)
+        {
+            // return next(new ValidationException("Parameter 'name' is null or undefined"));
+            return res.status(400).json({ error: "Parameter 'name' is null or undefined" });
+        }
+
+        try
+        {
+            const actor = await this.userController.getActorAsync({ name });
+            return res.json({ actor });
+        }
+        catch (e)
+        {
+            next(e);
+        }
     }
 
     private async updateUser(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        res.json({ msg: "route: POST /api/user/update" });
+        const { guid, name, password, role } = req.body.user;
+
+        if (guid == null)
+        {
+            // return next(new ValidationException("User guid is null or undefined"));
+            return res.status(400).json({ error: "User guid is null or undefined" });
+        }
+
+        if (name == null && password == null && role == null)
+        {
+            // return next(new ValidationException("All parameters are null or undefined"));
+            return res.status(400).json({ error: "All parameters are null or undefined" });
+        }
+
+        try
+        {
+            const changeSet = {};
+            if (name != null) { Object.assign(changeSet, { name }); }
+            if (password != null) { Object.assign(changeSet, { password }); }
+            if (role != null) { Object.assign(changeSet, { role }); }
+
+            this.userController.updateUserAsync(guid, changeSet);
+        }
+        catch (e)
+        {
+            if (e instanceof UserNotFoundException)
+            {
+                return res.status(400).send({ error: Errors.UserNotFound });
+            }
+
+            next(e);
+        }
     }
 
     private async createUser(req: express.Request, res: express.Response, next: express.NextFunction)

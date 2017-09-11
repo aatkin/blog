@@ -1,7 +1,7 @@
 import { injectable, inject } from "inversify";
 import * as express from "express";
 
-import { Types } from "../../";
+import { Types } from "../../Types";
 import { IUserRoute } from "./UserRoute";
 
 

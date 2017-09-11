@@ -1,6 +1,6 @@
 [
     {
-        "name": "dev",
+        "name": "default",
         "driver": {
             "type": "postgres",
             "host": "localhost",
@@ -10,12 +10,18 @@
             "database": "blog"
         },
         "entities": [
-            "./dist/models/**/*.js"
+            "./dist/src/entities/**/*.js"
         ],
-        "dropSchemaOnConnection": true,
-        "autoSchemaSync": true,
+        "migrations": [
+            "./dist/migration/*.js"
+        ],
+        "cli": {
+            "migrationsDir": "./migration"
+        },
         "logging": {
             "logQueries": true
-        }
+        },
+        "dropSchemaOnConnection": true,
+        "autoSchemaSync": true
     }
 ]

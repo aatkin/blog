@@ -4,8 +4,10 @@ import { Connection } from "typeorm";
 // container should be imported first..?
 import { container } from "./inversify.config";
 
-import { ILogger, fixtures } from "./utils";
-import { IDatabaseService, Server, Types } from "./";
+import { ILogger } from "./utils/Logging";
+import { IDatabaseService } from "./DatabaseService";
+import { Server } from "./Server";
+import { Types } from "./Types";
 
 
 let connection: Connection;
@@ -21,9 +23,6 @@ async function startup()
 
         // establish db connection
         connection = await databaseService.createConnection();
-
-        // dev fixtures reset database
-        await databaseService.useFixtures();
 
         const application = Server.bootstrap(container);
         application.start(4730, () =>

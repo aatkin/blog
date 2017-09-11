@@ -1,11 +1,15 @@
 {
     "logger": {
         "level": "debug",
-        "filepath": "logs/blog_DEV.log"
+        "filepath": "logs/blog.log"
     },
 
     "authentication": {
         "jwtSecret": "blogsecret123",
         "jwtSession": false
+    },
+
+    "database": {
+        "migrations": true
     }
 }

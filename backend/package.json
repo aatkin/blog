@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/blog.js",
+    "start": "node dist/src/blog.js",
     "test": "node node_modules/mocha/bin/mocha -r ts-node/register test/**/*.ts"
   },
   "author": "Anssi Kinnunen",
   "license": "MIT",
   "dependencies": {
+    "@types/node-cache": "^4.1.0",
     "@types/sequelize": "^4.0.73",
     "babel-core": "^6.26.0",
     "babel-preset-es2015": "^6.22.0",
@@ -23,6 +24,7 @@
     "inversify": "^4.3.0",
     "jwt-simple": "^0.5.1",
     "merge2": "^1.1.0",
+    "node-cache": "^4.1.1",
     "passport": "^0.3.2",
     "passport-jwt": "^2.2.1",
     "pg": "^7.3.0",
