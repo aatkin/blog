@@ -49,6 +49,12 @@ export class Server
 
     private config(): void
     {
+        this.app.use(function(req, res, next) {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            next();
+        });
+
         // log all requests
         this.app.use(this.logRequest.bind(this));
         // parse body from requests

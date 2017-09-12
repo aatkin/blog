@@ -19,7 +19,7 @@
             "testTsconfig": "tsconfig.spec.json",
             "prefix": "blog",
             "styles": [
-                "styles.css"
+                "styles.scss"
             ],
             "scripts": [],
             "environmentSource": "environments/environment.ts",

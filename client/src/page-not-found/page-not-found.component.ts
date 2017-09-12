@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 
 @Component({
     selector: 'blog-page-not-found',
-    templateUrl: './page-not-found.html',
-    styleUrls: ['./page-not-found.scss']
+    templateUrl: './page-not-found.component.html',
+    styleUrls: ['./page-not-found.component.scss']
 })
 export class PageNotFoundComponent
 {

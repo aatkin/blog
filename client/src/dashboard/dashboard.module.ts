@@ -14,4 +14,4 @@ import { DashboardComponent } from "./dashboard.component";
     exports: [
     ]
 })
-export class LoginModule {}
+export class DashboardModule {}
