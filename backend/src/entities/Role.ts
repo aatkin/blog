@@ -1,7 +1,7 @@
-import { Entity, Column, PrimaryColumn, OneToMany, Index } from "typeorm";
+import { Entity, Column, PrimaryColumn, ManyToOne, Index } from "typeorm";
 
 import { Partial } from "../utils/Partial";
-import { User } from "./User";
+import { Actor } from "./Actor";
 
 
 @Entity()
@@ -17,14 +17,26 @@ export class Role
     @Column()
     public value: string;
 
-    constructor(guid: string, name: string, value: string)
+    @ManyToOne(t => Actor, actor => actor.role)
+    public actors: Actor[];
+
+    constructor(guid: string, name: string, value: string, actors: Actor[])
     {
         this.guid = guid;
         this.name = name;
         this.value = value;
+        this.actors = actors;
     }
 }
 
-type RoleParams = Partial<Role>;
+type RoleQueryParams = {
+    name?: string;
+    guid?: string;
+};
 
-export { RoleParams };
+type RoleUpdateParams = {
+    name: string;
+    value: string;
+};
+
+export { RoleQueryParams, RoleUpdateParams };

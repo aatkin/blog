@@ -7,7 +7,7 @@ import { ILoggerService } from "../../services/LoggerService";
 import { ValidationException } from "../../exceptions/ValidationException";
 import { DatabaseException } from "../../exceptions/DatabaseException";
 import { UserNotFoundException } from "../../exceptions/UserNotFoundException";
-import { UserParams } from "../../entities/User";
+import { UserIdentityQueryParams, UserIdentityUpdateParams } from "../../entities/UserIdentity";
 import { Errors } from "../../constants/Errors";
 
 
@@ -44,10 +44,10 @@ export class UserRoute implements IUserRoute
 
     private attachRoutes(): void
     {
-        this.router.get("/", this.getAllActors.bind(this));
-        this.router.post("/", this.validateBody, this.getActor.bind(this));
-        this.router.post("/update", this.validateBody, this.updateUser.bind(this));
-        this.router.post("/create", this.validateBody, this.createUser.bind(this));
+        this.router.get("/", this.getAllActorsAsync.bind(this));
+        this.router.post("/", this.validateBody, this.getActorAsync.bind(this));
+        this.router.post("/update", this.validateBody, this.updateUserAsync.bind(this));
+        this.router.post("/create", this.validateBody, this.createUserAsync.bind(this));
     }
 
     private validateBody(req: express.Request, res: express.Response, next: express.NextFunction)
@@ -66,7 +66,7 @@ export class UserRoute implements IUserRoute
         next();
     }
 
-    private async getAllActors(req: express.Request, res: express.Response, next: express.NextFunction)
+    private async getAllActorsAsync(req: express.Request, res: express.Response, next: express.NextFunction)
     {
         try
         {
@@ -79,9 +79,9 @@ export class UserRoute implements IUserRoute
         }
     }
 
-    private async getActor(req: express.Request, res: express.Response, next: express.NextFunction)
+    private async getActorAsync(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        const { name } = <UserParams>(req.body.user);
+        const { name } = req.body.user;
 
         if (name == null)
         {
@@ -100,9 +100,9 @@ export class UserRoute implements IUserRoute
         }
     }
 
-    private async updateUser(req: express.Request, res: express.Response, next: express.NextFunction)
+    private async updateUserAsync(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        const { guid, name, password, role } = <UserParams>(req.body.user);
+        const { guid, name, role } = req.body.user;
 
         if (guid == null)
         {
@@ -110,7 +110,7 @@ export class UserRoute implements IUserRoute
             return res.status(400).json({ error: "User guid is null or undefined" });
         }
 
-        if (name == null && password == null && role == null)
+        if (name == null && role == null)
         {
             // return next(new ValidationException("All parameters are null or undefined"));
             return res.status(400).json({ error: "All parameters are null or undefined" });
@@ -120,10 +120,10 @@ export class UserRoute implements IUserRoute
         {
             const changeSet = {};
             if (name != null) { Object.assign(changeSet, { name }); }
-            if (password != null) { Object.assign(changeSet, { password }); }
             if (role != null) { Object.assign(changeSet, { role }); }
 
-            const actor = await this.userController.updateUserAsync(guid, changeSet);
+            const user = await this.userController.updateUserAsync(guid, changeSet);
+            const actor = user.actor;
             res.json({ actor });
         }
         catch (e)
@@ -137,8 +137,61 @@ export class UserRoute implements IUserRoute
         }
     }
 
-    private async createUser(req: express.Request, res: express.Response, next: express.NextFunction)
+    private async updateUserPasswordAsync(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        res.json({ msg: "route: POST /api/user/create" });
+        const { guid, password } = req.body.user;
+
+        if (password == null)
+        {
+            return res.status(400).json({ error: "New password is null or undefined" });
+        }
+
+        try
+        {
+            const user = await this.userController.updateUserPasswordAsync(guid, password);
+            const actor = user.actor;
+            res.json({ actor });
+        }
+        catch (e)
+        {
+            if (e instanceof UserNotFoundException)
+            {
+                return res.status(400).send({ error: Errors.UserNotFound });
+            }
+
+            next(e);
+        }
+    }
+
+    private async createUserAsync(req: express.Request, res: express.Response, next: express.NextFunction)
+    {
+        const { name, password } = req.body.user;
+
+        if (name == null || name === "")
+        {
+            return res.status(400).json({ error: "User name is null, undefined or empty string" });
+        }
+        if (!this.passwordIsValid(password))
+        {
+            return res.status(400).json({ error: "Password is null, undefined, empty string or under 4 characters long" });
+        }
+
+        try
+        {
+            const user = await this.userController.createUserAsync({ name, password, isFixture: false });
+            const actor = user.actor;
+            res.json({ actor });
+        }
+        catch (e)
+        {
+            next(e);
+        }
+    }
+
+    private passwordIsValid(password: string): boolean
+    {
+        return password != null
+            && password !== ""
+            && password.length > 4;
     }
 }

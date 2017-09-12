@@ -4,15 +4,17 @@ import * as uuid from "uuid/v4";
 import { Types } from "../Types";
 import { IDatabaseService } from "../services/DatabaseService";
 import { ILoggerService } from "../services/LoggerService";
-import { Page, PageParams } from "../entities/Page";
-import { User } from "../entities/User";
+import { Page, PageQueryParams, PageUpdateParams } from "../entities/Page";
+import { UserIdentity } from "../entities/UserIdentity";
+import { Actor } from "../entities/Actor";
 
 
 export interface IPageController
 {
     getPagesAsync(): Promise<Page[]>;
-    getPageAsync(pageParams: PageParams): Promise<Page>;
-    createPageAsync(user: User): Promise<Page>;
+    getActorPagesAsync(actorGuid: string): Promise<Page[]>;
+    getPageAsync(pageParams: PageQueryParams): Promise<Page>;
+    createPageAsync(actor: Actor): Promise<Page>;
     // updatePageAsync(pageParams: PageParams): Promise<Page>;
 }
 
@@ -29,7 +31,26 @@ export class PageController implements IPageController
             const pageRepository = await this.databaseService.connection.getRepository(Page);
             const pages = await pageRepository
                 .createQueryBuilder("page")
-                .innerJoinAndSelect("page.content", "content")
+                .innerJoinAndSelect("page.owner", "owner")
+                .getMany();
+
+            return pages;
+        }
+        catch (e)
+        {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+
+    public async getActorPagesAsync(actorGuid: string): Promise<Page[]>
+    {
+        try
+        {
+            const pageRepository = await this.databaseService.connection.getRepository(Page);
+            const pages = await pageRepository
+                .createQueryBuilder("page")
+                .where("page.owner = :keyword", { keyword: actorGuid })
                 .getMany();
             return pages;
         }
@@ -40,7 +61,7 @@ export class PageController implements IPageController
         }
     }
 
-    public async getPageAsync(pageParams: PageParams): Promise<Page>
+    public async getPageAsync(pageParams: PageQueryParams): Promise<Page>
     {
         try
         {
@@ -51,8 +72,8 @@ export class PageController implements IPageController
             {
                 page = await pageRepository
                     .createQueryBuilder("page")
-                    .where("page.guid IS :keyword", { keyword: pageParams.guid })
-                    .innerJoinAndSelect("page.content", "content")
+                    .where("page.guid = :keyword", { keyword: pageParams.guid })
+                    .innerJoinAndSelect("page.owner", "owner")
                     .getOne();
             }
             else
@@ -60,10 +81,9 @@ export class PageController implements IPageController
                 page = await pageRepository
                     .createQueryBuilder("page")
                     .where("page.title LIKE :keyword", { keyword: `%${pageParams.title}%` })
-                    .innerJoinAndSelect("page.content", "content")
+                    .innerJoinAndSelect("page.owner", "owner")
                     .getOne();
             }
-
 
             if (page != null)
             {
@@ -79,12 +99,12 @@ export class PageController implements IPageController
         }
     }
 
-    public async createPageAsync(user: User): Promise<Page>
+    public async createPageAsync(actor: Actor, title: string = ""): Promise<Page>
     {
         try
         {
             const pageRepository = await this.databaseService.connection.getRepository(Page);
-            const newPage = new Page(uuid(), user);
+            const newPage = new Page(uuid(), actor, title);
             await pageRepository.persist(newPage);
             return newPage;
         }
@@ -95,8 +115,8 @@ export class PageController implements IPageController
         }
     }
 
-    // public async updatePageAsync(pageParams: PageParams): Promise<Page>
-    // {
-    //     throw new Error("not implemented yet");
-    // }
+    public async updatePageAsync(pageParams: PageUpdateParams): Promise<Page>
+    {
+        throw new Error("not implemented yet");
+    }
 }

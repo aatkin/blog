@@ -5,11 +5,9 @@ import * as bcrypt from "bcrypt";
 import { Types } from "../Types";
 import { IDatabaseService } from "../services/DatabaseService";
 import { ILoggerService } from "../services/LoggerService";
-import { User, UserParams } from "../entities/User";
-import { Role, RoleParams } from "../entities/Role";
-import { Actor } from "../models/Actor";
-import { NewUser } from "../models/NewUser";
-import { Exception } from "../exceptions/Exception";
+import { UserIdentity, UserIdentityUpdateParams, UserIdentityCreateParams } from "../entities/UserIdentity";
+import { Role } from "../entities/Role";
+import { Actor, ActorQueryParams } from "../entities/Actor";
 import { DatabaseException } from "../exceptions/DatabaseException";
 import { UserNotFoundException } from "../exceptions/UserNotFoundException";
 
@@ -17,9 +15,10 @@ import { UserNotFoundException } from "../exceptions/UserNotFoundException";
 export interface IUserController
 {
     getActorsAsync(): Promise<Actor[]>;
-    getActorAsync(userParams: UserParams): Promise<Actor>;
-    updateUserAsync(userGuid: string, userParams: UserParams): Promise<Actor>;
-    createUserAsync(userParams: UserParams): Promise<Actor>;
+    getActorAsync(actorParams: ActorQueryParams): Promise<Actor>;
+    updateUserAsync(userGuid: string, userParams: UserIdentityUpdateParams): Promise<UserIdentity>;
+    updateUserPasswordAsync(userGuid: string, password: string): Promise<UserIdentity>;
+    createUserAsync(userParams: UserIdentityCreateParams): Promise<UserIdentity>;
 }
 
 @injectable()
@@ -32,14 +31,12 @@ export class UserController implements IUserController
     {
         try
         {
-            const userRepository = await this.databaseService.connection.getRepository(User);
-            const users = await userRepository.find({
-                alias: "user",
-                innerJoinAndSelect: {
-                    role: "user.role"
-                }
-            });
-            return users.map(Actor.fromUser);
+            const actorRepository = await this.databaseService.connection.getRepository(Actor);
+            const actors = await actorRepository
+                .createQueryBuilder("actor")
+                .innerJoinAndSelect("user.role", "role")
+                .getMany();
+            return actors;
         }
         catch (e)
         {
@@ -48,34 +45,33 @@ export class UserController implements IUserController
         }
     }
 
-    public async getActorAsync(userParams: UserParams): Promise<Actor>
+    public async getActorAsync(actorParams: ActorQueryParams): Promise<Actor>
     {
         try
         {
-            const userRepository = await this.databaseService.connection.getRepository(User);
-            let user;
+            const actorRepository = await this.databaseService.connection.getRepository(Actor);
+            let actor;
 
-            if (userParams.guid != null)
+            if (actorParams.guid != null)
             {
-                user = await userRepository
-                    .createQueryBuilder("user")
-                    .where("user.guid IS :keyword", { keyword: userParams.guid })
-                    .innerJoinAndSelect("user.role", "role")
+                actor = await actorRepository
+                    .createQueryBuilder("actor")
+                    .where("actor.guid = :keyword", { keyword: actorParams.guid })
+                    .innerJoinAndSelect("actor.role", "role")
                     .getOne();
             }
             else
             {
-                user = await userRepository
-                    .createQueryBuilder("user")
-                    .where("user.name LIKE :keyword", { keyword: `%${userParams.name}%` })
-                    .innerJoinAndSelect("user.role", "role")
+                actor = await actorRepository
+                    .createQueryBuilder("actor")
+                    .where("actor.name LIKE :keyword", { keyword: `%${actorParams.name}%` })
+                    .innerJoinAndSelect("actor.role", "role")
                     .getOne();
             }
 
-
-            if (user != null)
+            if (actor != null)
             {
-                return Actor.fromUser(user);
+                return actor;
             }
 
             return null;
@@ -87,24 +83,22 @@ export class UserController implements IUserController
         }
     }
 
-    public async updateUserAsync(userGuid: string, userParams: UserParams): Promise<Actor>
+    public async updateUserAsync(userGuid: string, userParams: UserIdentityUpdateParams): Promise<UserIdentity>
     {
         try
         {
-            const userRepository = await this.databaseService.connection.getRepository(User);
-            const queryParams = {
-                alias: "user",
-                innerJoinAndSelect: {
-                    role: "user.role"
-                }
-            };
-            const user = await userRepository.findOne({ guid: userGuid }, queryParams);
+            const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
+            const user = await userRepository
+                .createQueryBuilder("user")
+                .where("user.guid = :keyword", { keyword: userGuid })
+                .innerJoinAndSelect("user.actor", "actor")
+                .getOne();
 
             if (user != null)
             {
                 Object.assign(user, userParams);
                 await userRepository.persist(user);
-                return Actor.fromUser(user);
+                return user;
             }
             else
             {
@@ -121,47 +115,77 @@ export class UserController implements IUserController
             }
             else
             {
-                throw new DatabaseException("Uncaught exception while updating user");
+                throw new DatabaseException("Error while updating user");
             }
         }
     }
 
-    public async createUserAsync(params: NewUser): Promise<Actor>
+    public async updateUserPasswordAsync(userGuid: string, password: string): Promise<UserIdentity>
     {
         try
         {
-            const userRepository = await this.databaseService.connection.getRepository(User);
-            const roleRepository = await this.databaseService.connection.getRepository(Role);
+            const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
+            const user = await userRepository
+                .createQueryBuilder("user")
+                .where("user.guid = :keyword", { keyword: userGuid })
+                .innerJoinAndSelect("user.actor", "actor")
+                .getOne();
 
-            const userParams: UserParams = {
-                guid: uuid(),
-                password: await bcrypt.hash(params.password, await bcrypt.genSalt()),
-                isFixture: params.isFixture,
-                name: params.name
-            };
-
-            let role;
-
-            if (params.roleGuid)
+            if (user != null)
             {
-                role = await roleRepository.findOne({ guid: params.roleGuid });
+                user.passwordHash = await bcrypt.hash(password, await bcrypt.genSalt());
+                await userRepository.persist(user);
+                return user;
             }
             else
             {
-                // default role
-                role = await roleRepository.findOne({ guid: "000000-e559-4273-a831-a23009effb7c" });
+                throw new UserNotFoundException();
             }
-
-            Object.assign(userParams, { role });
-            const newUser = User.fromParams(userParams);
-            await userRepository.persist(newUser);
-
-            return Actor.fromUser(newUser);
         }
         catch (e)
         {
             this.logger.error(e);
-            throw new DatabaseException("Uncaught exception while creating user");
+
+            if (e instanceof UserNotFoundException)
+            {
+                throw e;
+            }
+            else
+            {
+                throw new DatabaseException("Error while updating user");
+            }
+        }
+    }
+
+    public async createUserAsync(params: UserIdentityCreateParams): Promise<UserIdentity>
+    {
+        try
+        {
+            const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
+            const actorRepository = await this.databaseService.connection.getRepository(Actor);
+
+            const guid = uuid();
+            const name = params.name;
+            const passwordHash = await bcrypt.hash(params.password, await bcrypt.genSalt());
+            const isFixture = params.isFixture;
+
+            let actor;
+
+            if (!params.actor)
+            {
+                // default actor
+                actor = await actorRepository.findOne({ guid: "000000-e559-4273-a831-a23009effb7c" });
+            }
+
+            const newUser = new UserIdentity(guid, name, passwordHash, isFixture, actor);
+            await userRepository.persist(newUser);
+
+            return newUser;
+        }
+        catch (e)
+        {
+            this.logger.error(e);
+            throw new DatabaseException("Error while creating user");
         }
     }
 }

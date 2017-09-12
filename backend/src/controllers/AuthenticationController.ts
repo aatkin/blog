@@ -10,7 +10,8 @@ import * as config from "config";
 import { Types } from "../Types";
 import { IDatabaseService } from "../services/DatabaseService";
 import { ILoggerService } from "../services/LoggerService";
-import { User, UserParams } from "../entities";
+import { UserIdentity, UserIdentityQueryParams } from "../entities/UserIdentity";
+import { Actor, ActorQueryParams } from "../entities/Actor";
 import { Errors } from "../constants/Errors";
 import { Time } from "../constants/Time";
 
@@ -25,7 +26,8 @@ export interface IAuthenticationController
 {
     initialize(): express.Handler;
     authenticate(): express.Handler;
-    getToken(credentials: AuthenticationCredentials): Promise<string>;
+    getTokenAsync(credentials: AuthenticationCredentials): Promise<string>;
+    extractUserFromRequestFunction(): (req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void>;
 }
 
 @injectable()
@@ -51,7 +53,7 @@ export class AuthenticationController implements IAuthenticationController
                 return done(null, { guid: payload.guid });
             }
 
-            const user = await this.getUser({ guid: payload.guid });
+            const user = await this.getUserAsync({ guid: payload.guid });
 
             if (user)
             {
@@ -79,11 +81,22 @@ export class AuthenticationController implements IAuthenticationController
         return passport.authenticate("jwt", { session: config.get<boolean>("authentication.jwtSession") });
     }
 
-    public async getToken(credentials: AuthenticationCredentials): Promise<string>
+    public extractUserFromRequestFunction(): (req: express.Request, res: express.Response, next: express.NextFunction) => Promise<void>
     {
-        const user = await this.getUser({ name: credentials.userName });
+        return async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+            const token = ExtractJwt.fromAuthHeaderWithScheme("Bearer")(req);
+            const { guid } = jwt.decode(token, config.get<string>("authentication.jwtSecret"));
+            const actor = await this.getActorAsync({ guid });
+            (req as any).authenticatedUser = actor;
+            next();
+        };
+    }
 
-        if (user && await bcrypt.compare(credentials.password, user.password))
+    public async getTokenAsync(credentials: AuthenticationCredentials): Promise<string>
+    {
+        const user = await this.getUserAsync({ name: credentials.userName });
+
+        if (user && await bcrypt.compare(credentials.password, user.passwordHash))
         {
             // jwt expiration token is recognized by passport-jwt
             const expiration = Date.now() + (30 * Time.MINUTE_MS);
@@ -95,10 +108,41 @@ export class AuthenticationController implements IAuthenticationController
         return null;
     }
 
-    private async getUser(userParams: UserParams): Promise<User>
+    private async getUserAsync(userParams: UserIdentityQueryParams): Promise<UserIdentity>
     {
-        const userRepository = await this.databaseService.connection.getRepository(User);
-        const user = await userRepository.findOne(userParams);
-        return user;
+        try
+        {
+            const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
+            const user = await userRepository
+                .createQueryBuilder("user")
+                .where("user.guid = :keyword", { keyword: userParams.guid })
+                .innerJoinAndSelect("user.actor", "actor")
+                .getOne();
+            return user;
+        }
+        catch (e)
+        {
+            this.logger.error(e);
+            throw e;
+        }
+    }
+
+    private async getActorAsync(actorParams: ActorQueryParams): Promise<Actor>
+    {
+        try
+        {
+            const actorRepository = await this.databaseService.connection.getRepository(Actor);
+            const user = await actorRepository
+                .createQueryBuilder("actor")
+                .where("actor.guid = :keyword", { keyword: actorParams.guid })
+                .innerJoinAndSelect("actor.user", "user")
+                .getOne();
+            return user;
+        }
+        catch (e)
+        {
+            this.logger.error(e);
+            throw e;
+        }
     }
 }

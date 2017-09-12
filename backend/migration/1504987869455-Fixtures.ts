@@ -2,52 +2,88 @@ import {Connection, EntityManager, MigrationInterface, QueryRunner} from "typeor
 import * as uuid from "uuid/v4";
 import * as bcrypt from "bcrypt";
 
-import { Role, User } from "../src/entities";
+import { Role } from "../src/entities/Role";
+import { Actor } from "../src/entities/Actor";
+import { UserIdentity } from "../src/entities/UserIdentity";
+import { Page } from "../src/entities/Page";
 
 
 const adminRole = new Role(
     uuid(),
     "Admin",
-    "ADMIN"
+    "ADMIN",
+    []
 );
 
 const defaultRole = new Role(
     "000000-e559-4273-a831-a23009effb7c",
     "User",
-    "USER"
+    "USER",
+    []
 );
 
+const actors = [
+    new Actor(
+        uuid(),
+        "Administrator",
+        adminRole
+    ),
+    new Actor(
+        uuid(),
+        "Nasse-setä",
+        adminRole
+    )
+];
+
 const users = [
-    new User(
+    new UserIdentity(
         uuid(),
         "Administrator",
         bcrypt.hashSync("admin123", bcrypt.genSaltSync()),
         true,
-        adminRole
+        actors[0]
     ),
-    new User(
+    new UserIdentity(
         // hard-coded guid for dev purposes
         "59c1c9b6-e559-4273-a831-a23009effb7c",
         "Nasse",
         bcrypt.hashSync("nasse123", bcrypt.genSaltSync()),
         true,
-        adminRole
+        actors[1]
     )
 ];
+
+const pages = [
+    new Page(
+        uuid(),
+        actors[0],
+        "Front page"
+    )
+];
+
+actors[0].pages = pages;
 
 export class Fixtures1504987869455 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner, connection: Connection): Promise<any> {
-        const userRepository = connection.getRepository(User);
+        const actorRepository = connection.getRepository(Actor);
+        const userRepository = connection.getRepository(UserIdentity);
         const roleRepository = connection.getRepository(Role);
+        const pageRepository = connection.getRepository(Page);
         await roleRepository.persist(adminRole);
+        await actorRepository.persist(actors);
         await userRepository.persist(users);
+        await pageRepository.persist(pages);
     }
 
     public async down(queryRunner: QueryRunner, connection: Connection): Promise<any> {
-        const userRepository = connection.getRepository(User);
+        const actorRepository = connection.getRepository(Actor);
+        const userRepository = connection.getRepository(UserIdentity);
         const roleRepository = connection.getRepository(Role);
+        const pageRepository = connection.getRepository(Page);
+        await pageRepository.remove(pages);
         await userRepository.remove(users);
+        await actorRepository.remove(actors);
         await roleRepository.remove(adminRole);
     }
 

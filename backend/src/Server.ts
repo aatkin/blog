@@ -91,7 +91,7 @@ export class Server
             };
 
             const authenticationService = this.container.get<IAuthenticationController>(Types.AuthenticationController);
-            const token = await authenticationService.getToken(credentials);
+            const token = await authenticationService.getTokenAsync(credentials);
 
             if (token !== null)
             {

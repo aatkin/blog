@@ -6,7 +6,7 @@ import { IPageController } from "../../controllers/PageController";
 import { ILoggerService } from "../../services/LoggerService";
 import { ValidationException } from "../../exceptions/ValidationException";
 import { DatabaseException } from "../../exceptions/DatabaseException";
-import { PageParams } from "../../entities/Page";
+import { PageQueryParams } from "../../entities/Page";
 
 
 export interface IPageRoute
@@ -33,6 +33,7 @@ export class PageRoute implements IPageRoute
             route: "page",
             routes: [
                 { method: "GET", route: "/" },
+                { method: "GET", route: "/:userGuid" },
                 { method: "POST", route: "/", params: "page" }
             ]
         };
@@ -42,6 +43,7 @@ export class PageRoute implements IPageRoute
     {
         this.router.get("/", this.getAllPages.bind(this));
         this.router.post("/", this.validateBody, this.getPage.bind(this));
+        this.router.get("/:userGuid", this.getAllUserPages.bind(this));
         // this.router.post("/update", this.validateBody, this.updateUser.bind(this));
         // this.router.get("/create", this.validateBody, this.createPage.bind(this));
     }
@@ -66,7 +68,22 @@ export class PageRoute implements IPageRoute
     {
         try
         {
+            console.log((req as any).authenticatedUser);
             const pages = await this.pageController.getPagesAsync();
+            res.json({ pages });
+        }
+        catch (e)
+        {
+            next(e);
+        }
+    }
+
+    private async getAllUserPages(req: express.Request, res: express.Response, next: express.NextFunction)
+    {
+        try
+        {
+            const { actorGuid } = req.params;
+            const pages = await this.pageController.getActorPagesAsync(actorGuid);
             res.json({ pages });
         }
         catch (e)
@@ -77,7 +94,7 @@ export class PageRoute implements IPageRoute
 
     private async getPage(req: express.Request, res: express.Response, next: express.NextFunction)
     {
-        const { title, guid } = <PageParams>(req.body.page);
+        const { title, guid } = <PageQueryParams>(req.body.page);
 
         if (title == null && guid == null)
         {

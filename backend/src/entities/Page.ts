@@ -3,7 +3,7 @@ import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, Vers
 import { Partial } from "../utils/Partial";
 import { ContentNode } from "../models/ContentNode";
 import { PageMetadata } from "../models/PageMetadata";
-import { User } from "../entities/User";
+import { Actor } from "../entities/Actor";
 
 
 @Entity()
@@ -19,11 +19,11 @@ export class Page
     @Index()
     public title: string;
 
-    @Column()
+    @Column({ type: "jsonb" })
     public metadata: PageMetadata;
 
-    @ManyToOne(t => User, user => user.pages)
-    public owner: User;
+    @ManyToOne(t => Actor, actor => actor.pages)
+    public owner: Actor;
 
     @CreateDateColumn()
     public createdDate: Date;
@@ -34,13 +34,28 @@ export class Page
     @VersionColumn()
     public version: number;
 
-    constructor(guid: string, owner: User)
+    constructor(guid: string, owner: Actor, title: string)
     {
         this.guid = guid;
         this.owner = owner;
+        this.title = title;
+        this.content = [];
+        this.metadata = { description: null };
     }
 }
 
-type PageParams = Partial<Page>;
+type PageQueryParams = {
+    guid?: string;
+    title?: string;
+    createdDate?: Date;
+    updateDate?: Date;
+};
 
-export { PageParams };
+type PageUpdateParams = {
+    title?: string;
+    content?: ContentNode[];
+    metadata?: PageMetadata;
+    owner?: Actor;
+};
+
+export { PageQueryParams, PageUpdateParams };
