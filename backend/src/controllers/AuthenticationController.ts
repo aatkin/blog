@@ -113,11 +113,26 @@ export class AuthenticationController implements IAuthenticationController
         try
         {
             const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
-            const user = await userRepository
-                .createQueryBuilder("user")
-                .where("user.guid = :keyword", { keyword: userParams.guid })
-                .innerJoinAndSelect("user.actor", "actor")
-                .getOne();
+
+            let user;
+
+            if (userParams.guid != null)
+            {
+                user = await userRepository
+                    .createQueryBuilder("user")
+                    .where("user.guid = :keyword", { keyword: userParams.guid })
+                    .innerJoinAndSelect("user.actor", "actor")
+                    .getOne();
+            }
+            else
+            {
+                user = await userRepository
+                    .createQueryBuilder("user")
+                    .where("user.name LIKE :keyword", { keyword: userParams.name })
+                    .innerJoinAndSelect("user.actor", "actor")
+                    .getOne();
+            }
+
             return user;
         }
         catch (e)
@@ -132,12 +147,27 @@ export class AuthenticationController implements IAuthenticationController
         try
         {
             const actorRepository = await this.databaseService.connection.getRepository(Actor);
-            const user = await actorRepository
-                .createQueryBuilder("actor")
-                .where("actor.guid = :keyword", { keyword: actorParams.guid })
-                .innerJoinAndSelect("actor.user", "user")
-                .getOne();
-            return user;
+
+            let actor;
+
+            if (actorParams.guid != null)
+            {
+                actor = await actorRepository
+                    .createQueryBuilder("actor")
+                    .where("actor.guid = :keyword", { keyword: actorParams.guid })
+                    .innerJoinAndSelect("actor.role", "role")
+                    .getOne();
+            }
+            else
+            {
+                actor = await actorRepository
+                    .createQueryBuilder("actor")
+                    .where("actor.name LIKE :keyword", { keyword: actorParams.name })
+                    .innerJoinAndSelect("actor.role", "role")
+                    .getOne();
+            }
+
+            return actor;
         }
         catch (e)
         {
