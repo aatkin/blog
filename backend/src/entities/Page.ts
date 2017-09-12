@@ -1,7 +1,8 @@
 import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, VersionColumn, Index, ManyToOne } from "typeorm";
 
 import { Partial } from "../utils/Partial";
-import { PageContent } from "../models/PageContent";
+import { ContentNode } from "../models/ContentNode";
+import { PageMetadata } from "../models/PageMetadata";
 import { User } from "../entities/User";
 
 
@@ -12,11 +13,14 @@ export class Page
     public guid: string;
 
     @Column({ type: "jsonb" })
-    public content: PageContent;
+    public content: ContentNode[];
 
     @Column()
     @Index()
     public title: string;
+
+    @Column()
+    public metadata: PageMetadata;
 
     @ManyToOne(t => User, user => user.pages)
     public owner: User;
