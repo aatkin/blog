@@ -1,5 +1,12 @@
-export enum Errors {
-    UserNotFound = "User not found",
-    RuntimeError = "Runtime error occurred",
-    ValidationException = "Validation failed"
+export enum DatabaseError
+{
+    UserNotFoundError = "User not found",
+    PageNotFoundError = "Page not found",
+    PagePersistError = "Could not persist page"
+}
+
+export enum Error
+{
+    RuntimeError = "Runtime error",
+    ValidationError = "Validation failed"
 }

@@ -38,24 +38,32 @@ export class Page
     {
         this.guid = guid;
         this.owner = owner;
-        this.title = title;
         this.content = [];
-        this.metadata = { description: null };
+        this.metadata = new PageMetadata();
+
+        if (title === "")
+        {
+            this.title = owner.guid.slice(0, 4) + "-" + guid.slice(0, 4) + "-post";
+        }
     }
 }
 
 type PageQueryParams = {
     guid?: string;
     title?: string;
-    createdDate?: Date;
-    updateDate?: Date;
+    createdDate?: string;
+    updateDate?: string;
 };
 
 type PageUpdateParams = {
     title?: string;
     content?: ContentNode[];
     metadata?: PageMetadata;
-    owner?: Actor;
+    ownerGuid?: string;
 };
 
-export { PageQueryParams, PageUpdateParams };
+type PageCreateParams = {
+    title?: string;
+}
+
+export { PageQueryParams, PageUpdateParams, PageCreateParams };

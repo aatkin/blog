@@ -22,7 +22,8 @@ export class MockAuthenticationController
 {
     public initialize(): express.Handler { return (req, res, next) => { next(); }; }
     public authenticate(): express.Handler { return (req, res, next) => { next(); }; }
-    public getToken(credentials: any): any {}
+    public getTokenAsync(credentials: any): any {}
+    public extractUserFromRequestFunction(): any {}
 }
 
 const container = new Container();

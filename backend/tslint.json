@@ -2,7 +2,7 @@
     "extends": "tslint-microsoft-contrib",
     "rules": {
         "missing-jsdoc": 0,
-        "quotemark": ["double"],
+        "quotemark": false,
         "no-console": [false],
         "export-name": 0,
         "no-relative-imports": 0,
@@ -19,7 +19,12 @@
         "no-any": false,
         "variable-name": false,
         "no-parameter-properties": false,
-        "interface-name": false
+        "interface-name": false,
+        "no-stateless-class": false,
+        "function-name": false,
+        "no-unnecessary-local-variable": false,
+        "no-suspicious-comment": false,
+        "no-backbone-get-set-outside-model": false
     },
 
     "rulesDirectory": [
