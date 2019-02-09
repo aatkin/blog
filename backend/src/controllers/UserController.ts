@@ -37,7 +37,7 @@ export class UserController implements IUserController {
       const actorRepository = await this.databaseService.connection!.getRepository(Actor);
       const actors = await actorRepository
         .createQueryBuilder("actor")
-        .innerJoinAndSelect("actor.role", "role")
+        .innerJoinAndSelect("actor.roles", "roles")
         .leftJoinAndSelect("actor.pages", "pages")
         .getMany();
       return actors;

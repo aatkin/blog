@@ -8,18 +8,14 @@
         "password": "secret123",
         "database": "blog",
         "entities": [
-            "./dist/src/entities/**/*.js"
+            "./src/entities/**/*.ts"
         ],
         "migrations": [
-            "./dist/migration/*.js"
+            "./migration/*.ts"
         ],
         "cli": {
             "migrationsDir": "./migration"
         },
-        "logging": {
-            "logQueries": true
-        },
-        "dropSchemaOnConnection": true,
-        "autoSchemaSync": true
+        "logging": true
     }
 ]

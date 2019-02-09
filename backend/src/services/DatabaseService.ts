@@ -20,6 +20,8 @@ export class DatabaseService implements IDatabaseService {
     try {
       this.connection = await createConnection();
       this.logger.debug("Connected to database!");
+      await this.connection.synchronize(true);
+      this.logger.debug("Synchronized with database!");
 
       if (config.get<boolean>("database.migrations")) {
         this.logger.debug("Running migrations");

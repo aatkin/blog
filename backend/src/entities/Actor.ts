@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, OneToOne, OneToMany, JoinColumn, Index } from "typeorm";
+import { Entity, Column, PrimaryColumn, OneToOne, OneToMany, ManyToMany, JoinTable, Index } from "typeorm";
 
 import { Role } from "src/entities/Role";
 import { Page } from "src/entities/Page";
@@ -18,19 +18,18 @@ export class Actor {
   })
   public user: UserIdentity;
 
-  @OneToMany<Role>(t => Role, role => role.actors, { cascade: ["insert"] })
-  @JoinColumn()
-  public role: Role;
+  @ManyToMany<Role>(t => Role, { cascade: ["insert"] })
+  @JoinTable()
+  public roles: Role[];
 
   @OneToMany<Page>(t => Page, page => page.owner, { cascade: ["insert"] })
   public pages: Page[];
 
-  constructor(guid: string, name: string, role: Role, user?: UserIdentity, pages?: Page[]) {
+  constructor(guid: string, name: string, roles: Role[], user?: UserIdentity) {
     this.guid = guid;
     this.name = name;
     this.user = user!;
-    this.role = role;
-    this.pages = pages || [];
+    this.roles = roles;
   }
 }
 
@@ -41,7 +40,7 @@ interface ActorQueryParams {
 
 interface ActorUpdateParams {
   name?: string;
-  role?: Role;
+  roles?: Role[];
   pages?: Page[];
 }
 

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, ManyToOne, Index } from "typeorm";
+import { Entity, Column, PrimaryColumn, ManyToMany, Index } from "typeorm";
 
 import { Actor } from "src/entities/Actor";
 
@@ -14,14 +14,13 @@ export class Role {
   @Column()
   public value: string;
 
-  @ManyToOne(t => Actor, actor => actor.role)
-  public actors: Actor[];
+  @ManyToMany(type => Actor, actor => actor.roles)
+  public actor: Actor[];
 
-  constructor(guid: string, name: string, value: string, actors: Actor[] = []) {
+  constructor(guid: string, name: string, value: string) {
     this.guid = guid;
     this.name = name;
     this.value = value;
-    this.actors = actors;
   }
 }
 
