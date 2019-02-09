@@ -49,7 +49,8 @@ export class Server
 
     private config(): void
     {
-        this.app.use(function(req, res, next) {
+        this.app.use((req, res, next) =>
+        {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
@@ -71,7 +72,10 @@ export class Server
         const authenticationController = this.container.get<IAuthenticationController>(Types.AuthenticationController);
 
         // routes
-        this.app.use("/api", authenticationController.authenticate(), apiRoute.router);
+        this.app.use("/api",
+            authenticationController.authenticate(),
+            authenticationController.extractUserFromRequestFunction(),
+            apiRoute.router);
 
         // authentication
         this.app.post("/authenticate", this.authenticate.bind(this));

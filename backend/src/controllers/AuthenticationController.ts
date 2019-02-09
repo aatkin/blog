@@ -79,9 +79,10 @@ export class AuthenticationController implements IAuthenticationController
         {
             const token = ExtractJwt.fromAuthHeaderWithScheme("Bearer")(req);
             const { guid } = jwt.decode(token, config.get<string>("authentication.jwtSecret"));
-            const actor = await this.userController.getActorAsync({ guid });
+            const user = await this.userController.getUserAsync({ guid });
             // add authenticated user to the request object for subsequent validation
-            req.authenticatedUserActor = actor;
+            req.authenticatedUser = user;
+            req.authenticatedActor = user.actor;
             next();
         };
     }
@@ -103,4 +104,4 @@ export class AuthenticationController implements IAuthenticationController
     }
 }
 
-export type AuthenticatedRequest = express.Request & { authenticatedUserActor: Actor };
+export type AuthenticatedRequest = express.Request & { authenticatedUser: UserIdentity, authenticatedActor: Actor };

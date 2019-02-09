@@ -18,8 +18,7 @@ export class ApiRoute
     public router: express.Router;
 
     constructor(@inject(Types.UserRoute) private userRoute: IUserRoute,
-                @inject(Types.PageRoute) private pageRoute: IPageRoute,
-                @inject(Types.AuthenticationController) private authenticationController: IAuthenticationController)
+                @inject(Types.PageRoute) private pageRoute: IPageRoute)
     {
         this.router = express.Router();
         this.attachRoutes();
@@ -31,8 +30,8 @@ export class ApiRoute
         this.router.get("/", this.getIndex.bind(this));
 
         // subroute handlers
-        this.router.use("/user", /*this.authenticationController.extractUserFromRequestFunction(),*/ this.userRoute.router);
-        this.router.use("/page", /*this.authenticationController.extractUserFromRequestFunction(),*/ this.pageRoute.router);
+        this.router.use("/user", this.userRoute.router);
+        this.router.use("/page", this.pageRoute.router);
     }
 
     private getIndex(req: express.Request, res: express.Response, next: express.NextFunction): void

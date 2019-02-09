@@ -11,27 +11,21 @@ import { Page } from "../src/entities/Page";
 const adminRole = new Role(
     uuid(),
     "Admin",
-    "ADMIN",
-    []
+    "ADMIN"
 );
 
 const defaultRole = new Role(
     "000000-e559-4273-a831-a23009effb7c",
     "User",
-    "USER",
-    []
+    "USER"
 );
 
-const actors = [
-    new Actor(
+
+
+const pages = [
+    new Page(
         uuid(),
-        "Administrator",
-        adminRole
-    ),
-    new Actor(
-        uuid(),
-        "Nasse-setä",
-        adminRole
+        "Front page"
     )
 ];
 
@@ -40,51 +34,50 @@ const users = [
         uuid(),
         "Administrator",
         bcrypt.hashSync("admin123", bcrypt.genSaltSync()),
-        true,
-        actors[0]
+        true
     ),
     new UserIdentity(
         // hard-coded guid for dev purposes
         "59c1c9b6-e559-4273-a831-a23009effb7c",
         "Nasse",
         bcrypt.hashSync("nasse123", bcrypt.genSaltSync()),
-        true,
-        actors[1]
+        true
     )
 ];
 
-const pages = [
-    new Page(
+const actors = [
+    new Actor(
         uuid(),
-        actors[0],
-        "Front page"
+        "Administrator",
+        adminRole,
+        users[0],
+        pages
+    ),
+    new Actor(
+        uuid(),
+        "Nasse-setä",
+        adminRole,
+        users[1]
     )
 ];
-
-actors[0].pages = pages;
 
 export class Fixtures1504987869455 implements MigrationInterface {
 
-    public async up(queryRunner: QueryRunner, connection: Connection): Promise<any> {
-        const actorRepository = connection.getRepository(Actor);
-        const userRepository = connection.getRepository(UserIdentity);
-        const roleRepository = connection.getRepository(Role);
-        const pageRepository = connection.getRepository(Page);
-        await roleRepository.persist(adminRole);
-        await actorRepository.persist(actors);
-        await userRepository.persist(users);
-        await pageRepository.persist(pages);
+    public async up(queryRunner: QueryRunner): Promise<any> {
+        const actorRepository = queryRunner.manager.getRepository(Actor);
+        await actorRepository.save(actors[0]);
+        await actorRepository.save(actors[1]);
+        // const userRepository = connection.getRepository(UserIdentity);
+        // const roleRepository = connection.getRepository(Role);
+        // const pageRepository = connection.getRepository(Page);
+        // await roleRepository.save(adminRole);
+        // await roleRepository.save(defaultRole);
+        // await userRepository.save(users);
+        // await pageRepository.save(pages);
     }
 
-    public async down(queryRunner: QueryRunner, connection: Connection): Promise<any> {
-        const actorRepository = connection.getRepository(Actor);
-        const userRepository = connection.getRepository(UserIdentity);
-        const roleRepository = connection.getRepository(Role);
-        const pageRepository = connection.getRepository(Page);
-        await pageRepository.remove(pages);
-        await userRepository.remove(users);
-        await actorRepository.remove(actors);
-        await roleRepository.remove(adminRole);
+    public async down(queryRunner: QueryRunner): Promise<any> {
+        // delete relations?
     }
 
 }

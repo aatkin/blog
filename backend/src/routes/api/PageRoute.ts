@@ -7,7 +7,7 @@ import { AuthenticatedRequest } from "../../controllers/AuthenticationController
 import { ILoggerService } from "../../services/LoggerService";
 import { ValidationException } from "../../exceptions/ValidationException";
 import { DatabaseException } from "../../exceptions/DatabaseException";
-import { Error } from "../../constants/Errors";
+import { Error, ValidationError } from "../../constants/Errors";
 import { PageQueryParams, PageCreateParams, PageUpdateParams } from "../../entities/Page";
 
 
@@ -43,11 +43,11 @@ export class PageRoute implements IPageRoute
 
     private attachRoutes(): void
     {
-        this.router.get("/", this.getAllPagesAsync.bind(this));
+        this.router.get("/debug", this.getAllPagesAsync.bind(this));
+        this.router.get("/all", this.getAllUserPagesAsync.bind(this));
         this.router.post("/", this.validateBody, this.getPageAsync.bind(this));
-        this.router.get("/:userGuid", this.getAllUserPagesAsync.bind(this));
         this.router.post("/update", this.validateBody, this.updatePageAsync.bind(this));
-        this.router.get("/create", this.validateBody, this.createPage.bind(this));
+        this.router.post("/create", this.validateBody, this.createPage.bind(this));
     }
 
     private validateBody(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction)
@@ -83,7 +83,7 @@ export class PageRoute implements IPageRoute
         try
         {
             // TODO: require correct role
-            const { actorGuid } = req.params;
+            const actorGuid = req.authenticatedActor.guid;
             const pages = await this.pageController.getActorPagesAsync(actorGuid);
             res.json({ pages });
         }
@@ -101,7 +101,10 @@ export class PageRoute implements IPageRoute
 
         if (title == null && guid == null)
         {
-            return res.status(400).json({ error: Error.ValidationError, message: "Parameters 'name' and 'guid' are null or undefined" });
+            return res.status(400).json({
+                error: ValidationError.Generic,
+                message: "Parameters 'name' and 'guid' are null or undefined"
+            });
         }
 
         try
@@ -117,11 +120,15 @@ export class PageRoute implements IPageRoute
 
     private async updatePageAsync(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction)
     {
-        const { pageGuid, content, metadata, ownerGuid, title } = <any>(req.body.page);
+        type Params = PageUpdateParams & { guid: string };
+        const { guid, content, metadata, ownerGuid, title } = <Params>(req.body.page);
 
         try
         {
-            const page = await this.pageController.updatePageAsync(pageGuid, { content, metadata, title, ownerGuid });
+            const page = await this.pageController.updatePageAsync(
+                guid,
+                { content, metadata, title, ownerGuid }
+            );
             return res.json({ page });
         }
         catch (e)
@@ -138,7 +145,7 @@ export class PageRoute implements IPageRoute
 
         try
         {
-            const page = await this.pageController.createPageAsync({ title });
+            const page = await this.pageController.createPageAsync(req.authenticatedActor, { title });
             return res.json({ page });
         }
         catch (e)

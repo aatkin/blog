@@ -52,7 +52,7 @@ export namespace ContentType
             case ContentType.Link:
                 return LinkNode.validate(node);
             case ContentType.Container:
-                return ContainerNode.Validate(node);
+                return ContainerNode.validate(node);
             default:
                 throw new UnknownContentNodeException(node.contentType);
         }

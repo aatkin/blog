@@ -19,14 +19,14 @@ export class UserIdentity
     @Column()
     public passwordHash: string;
 
-    @OneToOne(t => Actor, actor => actor.user)
+    @OneToOne(t => Actor, actor => actor.user, { cascadeAll: true })
     @JoinColumn()
     public actor: Actor;
 
     @Column()
     public isFixture: boolean;
 
-    constructor(guid: string, name: string, passwordHash: string, isFixture: boolean, actor: Actor)
+    constructor(guid: string, name: string, passwordHash: string, isFixture: boolean, actor: Actor = null)
     {
         this.guid = guid;
         this.name = name;

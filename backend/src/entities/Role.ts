@@ -20,7 +20,7 @@ export class Role
     @ManyToOne(t => Actor, actor => actor.role)
     public actors: Actor[];
 
-    constructor(guid: string, name: string, value: string, actors: Actor[])
+    constructor(guid: string, name: string, value: string, actors: Actor[] = [])
     {
         this.guid = guid;
         this.name = name;

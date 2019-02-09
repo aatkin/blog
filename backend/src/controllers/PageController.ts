@@ -14,11 +14,11 @@ import { Actor } from "../entities/Actor";
 
 export interface IPageController
 {
-    getPagesAsync(authenticatedUserActor: Actor): Promise<Page[]>;
-    getActorPagesAsync(authenticatedUserActor: Actor, actorGuid: string): Promise<Page[]>;
-    getPageAsync(authenticatedUserActor: Actor, pageParams: PageQueryParams): Promise<Page>;
-    createPageAsync(authenticatedUserActor: Actor, pageParams: PageCreateParams): Promise<Page>;
-    updatePageAsync(authenticatedUserActor: Actor, guid: string, pageParams: PageUpdateParams): Promise<Page>;
+    getPagesAsync(): Promise<Page[]>;
+    getActorPagesAsync(actorGuid: string): Promise<Page[]>;
+    getPageAsync(pageParams: PageQueryParams): Promise<Page>;
+    createPageAsync(actor: Actor, pageParams: PageCreateParams): Promise<Page>;
+    updatePageAsync(guid: string, pageParams: PageUpdateParams): Promise<Page>;
 }
 
 @injectable()
@@ -28,14 +28,14 @@ export class PageController implements IPageController
                 @inject(Types.UserController) private userController: IUserController,
                 @inject(Types.Logger) private logger: ILoggerService) {}
 
-    public async getPagesAsync(authenticatedUserActor: Actor): Promise<Page[]>
+    public async getPagesAsync(): Promise<Page[]>
     {
         try
         {
             const pageRepository = await this.databaseService.connection.getRepository(Page);
             const pages = await pageRepository
                 .createQueryBuilder("page")
-                .innerJoinAndSelect("page.owner", "owner")
+                .leftJoinAndSelect("page.owner", "owner")
                 .getMany();
 
             return pages;
@@ -47,7 +47,7 @@ export class PageController implements IPageController
         }
     }
 
-    public async getActorPagesAsync(authenticatedUserActor: Actor, actorGuid: string): Promise<Page[]>
+    public async getActorPagesAsync(actorGuid: string): Promise<Page[]>
     {
         try
         {
@@ -65,7 +65,7 @@ export class PageController implements IPageController
         }
     }
 
-    public async getPageAsync(authenticatedUserActor: Actor, pageParams: PageQueryParams): Promise<Page>
+    public async getPageAsync(pageParams: PageQueryParams): Promise<Page>
     {
         try
         {
@@ -103,14 +103,14 @@ export class PageController implements IPageController
         }
     }
 
-    public async createPageAsync(authenticatedUserActor: Actor, pageParams: PageCreateParams): Promise<Page>
+    public async createPageAsync(actor: Actor, pageParams: PageCreateParams): Promise<Page>
     {
-        const newPage = new Page(uuid(), authenticatedUserActor, pageParams.title);
+        const newPage = new Page(uuid(), pageParams.title, actor);
 
         try
         {
             const pageRepository = await this.databaseService.connection.getRepository(Page);
-            await pageRepository.persist(newPage);
+            await pageRepository.save(newPage);
             return newPage;
         }
         catch (e)
@@ -120,12 +120,12 @@ export class PageController implements IPageController
         }
     }
 
-    public async updatePageAsync(authenticatedUserActor: Actor, guid: string, pageParams: PageUpdateParams): Promise<Page>
+    public async updatePageAsync(guid: string, pageParams: PageUpdateParams): Promise<Page>
     {
         try
         {
             const pageRepository = await this.databaseService.connection.getRepository(Page);
-            const page = await this.getPageAsync(authenticatedUserActor, { guid });
+            const page = await this.getPageAsync({ guid });
 
             if (page == null)
             {
@@ -145,7 +145,7 @@ export class PageController implements IPageController
             }
             if (pageParams.title != null) { Object.assign(page, { title: pageParams.title }); }
 
-            await pageRepository.persist(page);
+            await pageRepository.save(page);
             return page;
         }
         catch (e)

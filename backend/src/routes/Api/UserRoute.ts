@@ -3,12 +3,13 @@ import * as express from "express";
 
 import { Types } from "../../Types";
 import { IUserController } from "../../controllers/UserController";
+import { AuthenticatedRequest } from "../../controllers/AuthenticationController";
 import { ILoggerService } from "../../services/LoggerService";
 import { ValidationException } from "../../exceptions/ValidationException";
 import { DatabaseException } from "../../exceptions/DatabaseException";
 import { UserNotFoundException } from "../../exceptions/UserNotFoundException";
 import { UserIdentityQueryParams, UserIdentityUpdateParams } from "../../entities/UserIdentity";
-import { Errors } from "../../constants/Errors";
+import { DatabaseError, ValidationError } from "../../constants/Errors";
 
 
 export interface IUserRoute
@@ -48,25 +49,30 @@ export class UserRoute implements IUserRoute
         this.router.post("/", this.validateBody, this.getActorAsync.bind(this));
         this.router.post("/update", this.validateBody, this.updateUserAsync.bind(this));
         this.router.post("/create", this.validateBody, this.createUserAsync.bind(this));
+        this.router.get("/debug", this.getUserInfoAsync.bind(this));
     }
 
-    private validateBody(req: express.Request, res: express.Response, next: express.NextFunction)
+    private validateBody(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction)
     {
         if (!req.body)
         {
-            // return next(new ValidationException("Request body is null or undefined"));
-            return res.status(400).json({ error: "Request body is null or undefined" });
+            return res.status(400).json({
+                error: ValidationError.Generic,
+                message: "Request body is null or undefined"
+            });
         }
         if (!req.body.user || typeof req.body.user !== "object")
         {
-            // return next(new ValidationException("Request body must include user object"));
-            return res.status(400).json({ error: "Request body must include user object" });
+            return res.status(400).json({
+                error: ValidationError.Generic,
+                message: "Request body must include user object"
+            });
         }
 
         next();
     }
 
-    private async getAllActorsAsync(req: express.Request, res: express.Response, next: express.NextFunction)
+    private async getAllActorsAsync(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction)
     {
         try
         {
@@ -79,15 +85,9 @@ export class UserRoute implements IUserRoute
         }
     }
 
-    private async getActorAsync(req: express.Request, res: express.Response, next: express.NextFunction)
+    private async getActorAsync(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction)
     {
         const { name } = req.body.user;
-
-        if (name == null)
-        {
-            // return next(new ValidationException("Parameter 'name' is null or undefined"));
-            return res.status(400).json({ error: "Parameter 'name' is null or undefined" });
-        }
 
         try
         {
@@ -100,21 +100,9 @@ export class UserRoute implements IUserRoute
         }
     }
 
-    private async updateUserAsync(req: express.Request, res: express.Response, next: express.NextFunction)
+    private async updateUserAsync(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction)
     {
         const { guid, name, role } = req.body.user;
-
-        if (guid == null)
-        {
-            // return next(new ValidationException("User guid is null or undefined"));
-            return res.status(400).json({ error: "User guid is null or undefined" });
-        }
-
-        if (name == null && role == null)
-        {
-            // return next(new ValidationException("All parameters are null or undefined"));
-            return res.status(400).json({ error: "All parameters are null or undefined" });
-        }
 
         try
         {
@@ -130,21 +118,16 @@ export class UserRoute implements IUserRoute
         {
             if (e instanceof UserNotFoundException)
             {
-                return res.status(400).send({ error: Errors.UserNotFound });
+                return res.status(400).send({ error: DatabaseError.UserNotFoundError, message: e.message });
             }
 
             next(e);
         }
     }
 
-    private async updateUserPasswordAsync(req: express.Request, res: express.Response, next: express.NextFunction)
+    private async updateUserPasswordAsync(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction)
     {
         const { guid, password } = req.body.user;
-
-        if (password == null)
-        {
-            return res.status(400).json({ error: "New password is null or undefined" });
-        }
 
         try
         {
@@ -156,25 +139,20 @@ export class UserRoute implements IUserRoute
         {
             if (e instanceof UserNotFoundException)
             {
-                return res.status(400).send({ error: Errors.UserNotFound });
+                return res.status(400).send({ error: DatabaseError.UserNotFoundError, message: e.message });
+            }
+            if (e instanceof ValidationException)
+            {
+                return res.status(400).send({ error: ValidationError.Generic, message: e.message });
             }
 
             next(e);
         }
     }
 
-    private async createUserAsync(req: express.Request, res: express.Response, next: express.NextFunction)
+    private async createUserAsync(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction)
     {
         const { name, password } = req.body.user;
-
-        if (name == null || name === "")
-        {
-            return res.status(400).json({ error: "User name is null, undefined or empty string" });
-        }
-        if (!this.passwordIsValid(password))
-        {
-            return res.status(400).json({ error: "Password is null, undefined, empty string or under 4 characters long" });
-        }
 
         try
         {
@@ -188,10 +166,15 @@ export class UserRoute implements IUserRoute
         }
     }
 
-    private passwordIsValid(password: string): boolean
+    private async getUserInfoAsync(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction)
     {
-        return password != null
-            && password !== ""
-            && password.length > 4;
+        try
+        {
+            res.json({ actor: req.authenticatedActor, user: req.authenticatedUser });
+        }
+        catch (e)
+        {
+            next(e);
+        }
     }
 }

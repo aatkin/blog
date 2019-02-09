@@ -34,7 +34,7 @@ export class Page
     @VersionColumn()
     public version: number;
 
-    constructor(guid: string, owner: Actor, title: string)
+    constructor(guid: string, title: string, owner: Actor = null)
     {
         this.guid = guid;
         this.owner = owner;
@@ -44,6 +44,10 @@ export class Page
         if (title === "")
         {
             this.title = owner.guid.slice(0, 4) + "-" + guid.slice(0, 4) + "-post";
+        }
+        else
+        {
+            this.title = title;
         }
     }
 }

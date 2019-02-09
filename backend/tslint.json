@@ -24,7 +24,9 @@
         "function-name": false,
         "no-unnecessary-local-variable": false,
         "no-suspicious-comment": false,
-        "no-backbone-get-set-outside-model": false
+        "no-backbone-get-set-outside-model": false,
+        "max-line-length": false,
+        "align": false
     },
 
     "rulesDirectory": [

@@ -10,6 +10,8 @@ import { Role } from "../entities/Role";
 import { Actor, ActorQueryParams } from "../entities/Actor";
 import { DatabaseException } from "../exceptions/DatabaseException";
 import { UserNotFoundException } from "../exceptions/UserNotFoundException";
+import { ValidationException } from "../exceptions/ValidationException";
+import { ValidationError } from "../constants/Errors";
 
 
 export interface IUserController
@@ -35,7 +37,8 @@ export class UserController implements IUserController
             const actorRepository = await this.databaseService.connection.getRepository(Actor);
             const actors = await actorRepository
                 .createQueryBuilder("actor")
-                .innerJoinAndSelect("user.role", "role")
+                .innerJoinAndSelect("actor.role", "role")
+                .leftJoinAndSelect("actor.pages", "pages")
                 .getMany();
             return actors;
         }
@@ -50,6 +53,11 @@ export class UserController implements IUserController
     {
         try
         {
+            if (userParams.name == null && userParams.guid == null)
+            {
+                throw new ValidationException(ValidationError.BadUserGuidError);
+            }
+
             const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
             let user;
 
@@ -83,8 +91,12 @@ export class UserController implements IUserController
     {
         try
         {
-            const actorRepository = await this.databaseService.connection.getRepository(Actor);
+            if (actorParams.name == null && actorParams.guid == null)
+            {
+                throw new ValidationException(ValidationError.BadUserGuidError);
+            }
 
+            const actorRepository = await this.databaseService.connection.getRepository(Actor);
             let actor;
 
             if (actorParams.guid != null)
@@ -117,6 +129,15 @@ export class UserController implements IUserController
     {
         try
         {
+            if (userGuid == null)
+            {
+                throw new ValidationException(ValidationError.BadUserGuidError);
+            }
+            if (userParams.name == null && userParams.actor == null)
+            {
+                throw new ValidationException(ValidationError.BadUpdateParamsError);
+            }
+
             const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
             const user = await userRepository
                 .createQueryBuilder("user")
@@ -124,16 +145,14 @@ export class UserController implements IUserController
                 .innerJoinAndSelect("user.actor", "actor")
                 .getOne();
 
-            if (user != null)
-            {
-                Object.assign(user, userParams);
-                await userRepository.persist(user);
-                return user;
-            }
-            else
+            if (user == null)
             {
                 throw new UserNotFoundException();
             }
+
+            Object.assign(user, userParams);
+            await userRepository.save(user);
+            return user;
         }
         catch (e)
         {
@@ -154,6 +173,11 @@ export class UserController implements IUserController
     {
         try
         {
+            if (password == null || password === "")
+            {
+                throw new ValidationException(ValidationError.BadPasswordError);
+            }
+
             const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
             const user = await userRepository
                 .createQueryBuilder("user")
@@ -161,29 +185,25 @@ export class UserController implements IUserController
                 .innerJoinAndSelect("user.actor", "actor")
                 .getOne();
 
-            if (user != null)
-            {
-                user.passwordHash = await bcrypt.hash(password, await bcrypt.genSalt());
-                await userRepository.persist(user);
-                return user;
-            }
-            else
+            if (user == null)
             {
                 throw new UserNotFoundException(userGuid);
             }
+
+            user.passwordHash = await bcrypt.hash(password, await bcrypt.genSalt());
+            await userRepository.save(user);
+            return user;
         }
         catch (e)
         {
             this.logger.error(e);
 
-            if (e instanceof UserNotFoundException)
+            if (e instanceof UserNotFoundException || e instanceof ValidationException)
             {
                 throw e;
             }
-            else
-            {
-                throw new DatabaseException("Error while updating user");
-            }
+
+            throw new DatabaseException("Error while updating user");
         }
     }
 
@@ -191,30 +211,64 @@ export class UserController implements IUserController
     {
         try
         {
+            if (params.password == null || params.password === "")
+            {
+                throw new ValidationException(ValidationError.BadPasswordError);
+            }
+            if (params.name == null || params.name === "")
+            {
+                throw new ValidationException(ValidationError.BadUserNameError);
+            }
+
             const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
             const actorRepository = await this.databaseService.connection.getRepository(Actor);
+            const roleRepository = await this.databaseService.connection.getRepository(Role);
 
             const guid = uuid();
             const name = params.name;
             const passwordHash = await bcrypt.hash(params.password, await bcrypt.genSalt());
             const isFixture = params.isFixture;
 
-            let actor;
+            let actor = params.actor;
 
-            if (!params.actor)
+            if (actor == null)
             {
-                // default actor
-                actor = await actorRepository.findOne({ guid: "000000-e559-4273-a831-a23009effb7c" });
+                // default role
+                // const role = await roleRepository.findOne({ guid: "000000-e559-4273-a831-a23009effb7c" });
+                const role = await roleRepository
+                    .createQueryBuilder("role")
+                    .where("role.guid = :keyword", { keyword: "000000-e559-4273-a831-a23009effb7c" })
+                    .leftJoinAndSelect("role.actors", "actors")
+                    .getOne();
+                actor = new Actor(uuid(), name, role);
+                actorRepository.save(actor);
+
+                // update actor-role link
+                if (role.actors.find(a => a.guid === actor.guid) == null)
+                {
+                    role.actors.push(actor);
+                    roleRepository.save(role);
+                }
             }
 
             const newUser = new UserIdentity(guid, name, passwordHash, isFixture, actor);
-            await userRepository.persist(newUser);
+            await userRepository.save(newUser);
+
+            // update actor-user link
+            actor.user = newUser;
+            actorRepository.save(actor);
 
             return newUser;
         }
         catch (e)
         {
             this.logger.error(e);
+
+            if (e instanceof ValidationException)
+            {
+                throw e;
+            }
+
             throw new DatabaseException("Error while creating user");
         }
     }

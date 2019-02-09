@@ -15,19 +15,17 @@ export class Actor
     @Index()
     public name: string;
 
-    @OneToOne(t => UserIdentity, user => user.actor, {
-        nullable: true
-    })
+    @OneToOne(t => UserIdentity, user => user.actor, { cascadeInsert: true, cascadeUpdate: true })
     public user: UserIdentity;
 
-    @OneToOne(t => Role)
+    @OneToMany(t => Role, role => role.actors, { cascadeInsert: true })
     @JoinColumn()
     public role: Role;
 
-    @OneToMany(t => Page, page => page.owner)
+    @OneToMany(t => Page, page => page.owner, { cascadeInsert: true })
     public pages: Page[];
 
-    constructor(guid: string, name: string, role: Role, user?: UserIdentity, pages: Page[] = [])
+    constructor(guid: string, name: string, role: Role, user?: UserIdentity, pages?: Page[])
     {
         this.guid = guid;
         this.name = name;
