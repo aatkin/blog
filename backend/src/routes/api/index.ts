@@ -24,7 +24,7 @@ export class ApiRoute {
 
     // subroute handlers
     this.router.use("/user", this.userRoute.router);
-    this.router.use("/page", this.userRoute.router);
+    this.router.use("/page", this.pageRoute.router);
   }
 
   private getIndex(req: express.Request, res: express.Response, next: express.NextFunction): void {

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/Blog.ts",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpileOnly src/Blog.ts",
-    "test": "node node_modules/mocha/bin/mocha -r ts-node/register test/**/*.ts",
+    "test": "node node_modules/mocha/bin/mocha",
+    "test-watch": "node node_modules/mocha/bin/mocha --watch-extensions ts --watch test/**/*.ts",
     "lint": "prettier --write \"migration/**/*.ts\" \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "author": "Anssi Kinnunen",

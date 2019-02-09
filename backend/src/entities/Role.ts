@@ -15,7 +15,7 @@ export class Role {
   public value: string;
 
   @ManyToMany(type => Actor, actor => actor.roles)
-  public actor: Actor[];
+  public actors: Actor[];
 
   constructor(guid: string, name: string, value: string) {
     this.guid = guid;

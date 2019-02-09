@@ -1,11 +1,12 @@
-import { Container, injectable } from "inversify";
+import { Container } from "inversify";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 
 import { Types } from "src/Types";
+import { ValidationException } from "src/exceptions/ValidationException";
 import { ILoggerService } from "src/services/LoggerService";
 import { IAuthenticationController, AuthenticationCredentials } from "src/controllers/AuthenticationController";
-import { IApiRoute, ApiRoute } from "src/routes/Api";
+import { IApiRoute } from "src/routes/Api";
 
 /**
  * Back-end server class
@@ -38,7 +39,7 @@ export class Server {
   /**
    * Start the server using given parameters
    */
-  public start(port: Number, callback: Function): void {
+  public start(port: number, callback: () => void): void {
     this.app.listen(port, callback);
   }
 
@@ -106,9 +107,13 @@ export class Server {
   }
 
   private async handleError(err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
-    // handle prod errors as well
     const logger = this.container.get<ILoggerService>(Types.Logger);
     logger.error(err);
+
+    if (err instanceof ValidationException) {
+      return res.status(400).json({ error: err.message });
+    }
+    // handle prod errors as well
     res.status(500).json({
       message: err.message,
       error: err

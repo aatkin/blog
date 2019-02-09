@@ -10,10 +10,8 @@ import { Types } from "src/Types";
 import { IDatabaseService } from "src/services/DatabaseService";
 import { ILoggerService } from "src/services/LoggerService";
 import { IUserController } from "src/controllers/UserController";
-import { UserIdentity, UserIdentityQueryParams } from "src/entities/UserIdentity";
-import { Actor, ActorQueryParams } from "src/entities/Actor";
-import { DatabaseException } from "src/exceptions/DatabaseException";
-import { Exception } from "src/exceptions/Exception";
+import { UserIdentity } from "src/entities/UserIdentity";
+import { Actor } from "src/entities/Actor";
 import { DatabaseError } from "src/constants/Errors";
 import { Time } from "src/constants/Time";
 
@@ -88,7 +86,7 @@ export class AuthenticationController implements IAuthenticationController {
 
     if (user != null && (await bcrypt.compare(credentials.password, user.passwordHash))) {
       // jwt expiration token is recognized by passport-jwt
-      const expiration = Date.now() + 30 * Time.MINUTE_MS;
+      const expiration = Date.now() + Time.DAY_MS;
       const payload = { guid: user.guid, exp: expiration };
       const token = jwt.encode(payload, config.get("authentication.jwtSecret"));
       return token;

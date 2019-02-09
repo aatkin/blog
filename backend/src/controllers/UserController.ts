@@ -207,8 +207,6 @@ export class UserController implements IUserController {
       let actor = params.actor;
 
       if (actor == null) {
-        // default role
-        // const role = await roleRepository.findOne({ guid: "000000-e559-4273-a831-a23009effb7c" });
         const role = await roleRepository
           .createQueryBuilder("role")
           .where("role.guid = :keyword", {
@@ -221,7 +219,7 @@ export class UserController implements IUserController {
           throw new RoleNotFoundException();
         }
 
-        actor = new Actor(uuid(), name, role);
+        actor = new Actor(uuid(), name, [role]);
         actorRepository.save(actor);
 
         // update actor-role link

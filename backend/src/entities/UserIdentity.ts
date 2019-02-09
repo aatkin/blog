@@ -38,8 +38,11 @@ interface UserIdentityQueryParams {
 }
 
 interface UserIdentityUpdateParams {
+  guid?: string;
   name?: string;
   actor?: Actor;
+  role?: Role;
+  password?: string;
 }
 
 interface UserIdentityCreateParams {

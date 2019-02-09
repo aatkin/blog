@@ -1,14 +1,15 @@
 import { injectable, inject } from "inversify";
 import * as express from "express";
+import { pick } from 'ramda';
 
 import { Types } from "src/Types";
 import { IUserController } from "src/controllers/UserController";
+import { AuthenticatedRequest } from "src/controllers/AuthenticationController";
 import { ILoggerService } from "src/services/LoggerService";
-// import { ValidationException } from "src/exceptions/ValidationException";
-// import { DatabaseException } from "src/exceptions/DatabaseException";
-// import { UserNotFoundException } from "src/exceptions/UserNotFoundException";
-// import { UserParams } from "src/entities/User";
-// import { Error } from "src/constants/Errors";
+import { ValidationException } from "src/exceptions/ValidationException";
+import { UserNotFoundException } from "src/exceptions/UserNotFoundException";
+import { UserIdentityQueryParams, UserIdentityUpdateParams } from "src/entities/UserIdentity";
+import { DatabaseError } from "src/constants/Errors";
 
 export interface IUserRoute {
   router: express.Router;
@@ -38,19 +39,18 @@ export class UserRoute implements IUserRoute {
 
   private attachRoutes(): void {
     this.router.get("/", this.getAllActors.bind(this));
-    // this.router.post("/", this.validateBody, this.getActor.bind(this));
-    // this.router.post("/update", this.validateBody, this.updateUser.bind(this));
+    this.router.get("/personal", this.getUser.bind(this));
+    this.router.post("/", this.validateBody, this.getActor.bind(this));
+    this.router.post("/update", this.validateBody, this.updateUser.bind(this));
     this.router.post("/create", this.validateBody, this.createUser.bind(this));
   }
 
   private validateBody(req: express.Request, res: express.Response, next: express.NextFunction) {
     if (!req.body) {
-      // return next(new ValidationException("Request body is null or undefined"));
-      return res.status(400).json({ error: "Request body is null or undefined" });
+      return next(new ValidationException("Request body is null or undefined"));
     }
     if (!req.body.user || typeof req.body.user !== "object") {
-      // return next(new ValidationException("Request body must include user object"));
-      return res.status(400).json({ error: "Request body must include user object" });
+      return next(new ValidationException("Request body must include user object"));
     }
 
     next();
@@ -65,63 +65,69 @@ export class UserRoute implements IUserRoute {
     }
   }
 
-  // private async getActor(req: express.Request, res: express.Response, next: express.NextFunction)
-  // {
-  //     const { name } = <UserParams>(req.body.user);
+  private async getUser(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) {
+    try {
+      const authenticatedUser = req.authenticatedUser;
+      const user = pick(["name", "actor"], authenticatedUser);
+      res.json({ user });
+    } catch (e) {
+      next(e);
+    }
+  }
 
-  //     if (name == null)
-  //     {
-  //         // return next(new ValidationException("Parameter 'name' is null or undefined"));
-  //         return res.status(400).json({ error: "Parameter 'name' is null or undefined" });
-  //     }
+  private async getActor(req: express.Request, res: express.Response, next: express.NextFunction)
+  {
+      const { name } = req.body.user as UserIdentityQueryParams;
 
-  //     try
-  //     {
-  //         const actor = await this.userController.getActorAsync({ name });
-  //         return res.json({ actor });
-  //     }
-  //     catch (e)
-  //     {
-  //         next(e);
-  //     }
-  // }
+      if (!name)
+      {
+          return next(new ValidationException("Parameter 'name' is null or undefined"));
+      }
 
-  // private async updateUser(req: express.Request, res: express.Response, next: express.NextFunction)
-  // {
-  //     const { guid, name, password, role } = <UserParams>(req.body.user);
+      try
+      {
+          const actor = await this.userController.getActorAsync({ name });
+          return res.json({ actor });
+      }
+      catch (e)
+      {
+          next(e);
+      }
+  }
 
-  //     if (guid == null)
-  //     {
-  //         // return next(new ValidationException("User guid is null or undefined"));
-  //         return res.status(400).json({ error: "User guid is null or undefined" });
-  //     }
+  private async updateUser(req: express.Request, res: express.Response, next: express.NextFunction)
+  {
+      const { guid, name, role } = req.body.user as UserIdentityUpdateParams;
 
-  //     if (name == null && password == null && role == null)
-  //     {
-  //         // return next(new ValidationException("All parameters are null or undefined"));
-  //         return res.status(400).json({ error: "All parameters are null or undefined" });
-  //     }
+      if (guid == null)
+      {
+          return next(new ValidationException("User guid is null or undefined"));
+      }
 
-  //     try
-  //     {
-  //         const changeSet = {};
-  //         if (name != null) { Object.assign(changeSet, { name }); }
-  //         if (password != null) { Object.assign(changeSet, { password }); }
-  //         if (role != null) { Object.assign(changeSet, { role }); }
+      if (name == null && role == null)
+      {
+          return next(new ValidationException("All update parameters are null or undefined"));
+      }
 
-  //         const actor = await this.userController.updateUserAsync(guid, changeSet);
-  //         res.json({ actor });
-  //     }
-  //     catch (e)
-  //     {
-  //         if (e instanceof UserNotFoundException)
-  //         {
-  //             return res.status(400).send({ error: Errors.UserNotFound });
-  //         }
+      try
+      {
+          const changeSet: UserIdentityUpdateParams = {};
+          if (name != null) { Object.assign(changeSet, { name }); }
+          if (role != null) { Object.assign(changeSet, { role }); }
 
-  //         next(e);
-  //     }
-  // }
+          const actor = await this.userController.updateUserAsync(guid, changeSet);
+          res.json({ actor });
+      }
+      catch (e)
+      {
+          if (e instanceof UserNotFoundException)
+          {
+              return res.status(400).send({ error: DatabaseError.UserNotFoundError });
+          }
+
+          next(e);
+      }
+  }
 
   private async createUser(req: express.Request, res: express.Response, next: express.NextFunction) {
     res.json({ msg: "route: POST /api/user/create" });

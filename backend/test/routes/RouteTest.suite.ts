@@ -9,8 +9,8 @@ import * as express from "express";
 const { expect } = chai;
 chai.use(chaiHttp);
 
-import { Server } from "../src/Server";
-import { container } from "../inversify.config.test";
+import { Server } from "src/Server";
+import { container } from "test/inversify.config.test";
 
 describe("simple get route", () => {
   let server: Server;
@@ -30,7 +30,7 @@ describe("simple get route", () => {
     );
   });
 
-  it("should return 200", (done: Function) => {
+  it("should return 200", done => {
     chai
       .request(server.app)
       .get("/test")
@@ -41,7 +41,7 @@ describe("simple get route", () => {
       });
   });
 
-  it("should return json response", (done: Function) => {
+  it("should return json response", done => {
     chai
       .request(server.app)
       .get("/test")
