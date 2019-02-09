@@ -1,10 +1,7 @@
 import { Exception } from "./Exception";
 
-
-export class ValidationException extends Exception
-{
-    constructor(message?: string)
-    {
-        super(message, "ValidationException");
-    }
+export class ValidationException extends Exception {
+  constructor(message?: string) {
+    super(message, "ValidationException");
+  }
 }

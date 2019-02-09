@@ -11,13 +11,21 @@ import { IDatabaseService, DatabaseService } from "./services/DatabaseService";
 
 import { Types } from "./Types";
 
-
 const container = new Container();
 
 // general/utils
-container.bind<ILoggerService>(Types.Logger).to(LoggerService).inSingletonScope();
-container.bind<IDatabaseService>(Types.DatabaseService).to(DatabaseService).inSingletonScope();
-container.bind<IAuthenticationController>(Types.AuthenticationController).to(AuthenticationController).inSingletonScope();
+container
+  .bind<ILoggerService>(Types.Logger)
+  .to(LoggerService)
+  .inSingletonScope();
+container
+  .bind<IDatabaseService>(Types.DatabaseService)
+  .to(DatabaseService)
+  .inSingletonScope();
+container
+  .bind<IAuthenticationController>(Types.AuthenticationController)
+  .to(AuthenticationController)
+  .inSingletonScope();
 
 // api
 container.bind<IUserController>(Types.UserController).to(UserController);

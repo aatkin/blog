@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/src/blog.js",
-    "test": "node node_modules/mocha/bin/mocha -r ts-node/register test/**/*.ts"
+    "start": "ts-node src/blog.ts",
+    "dev": "ts-node-dev --respawn --transpileOnly src/blog.ts",
+    "test": "node node_modules/mocha/bin/mocha -r ts-node/register test/**/*.ts",
+    "lint": "prettier --write \"migration/**/*.ts\" \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "author": "Anssi Kinnunen",
   "license": "MIT",
@@ -30,6 +32,7 @@
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "pg": "^7.8.0",
+    "prettier": "^1.16.4",
     "reflect-metadata": "^0.1.13",
     "ts-node": "^8.0.2",
     "ts-node-dev": "^1.0.0-pre.32",

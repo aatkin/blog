@@ -1,9 +1,7 @@
-export class PageMetadata
-{
-    public description: string;
+export class PageMetadata {
+  public description: string;
 
-    constructor(description: string = "")
-    {
-        this.description = description;
-    }
+  constructor(description: string = "") {
+    this.description = description;
+  }
 }

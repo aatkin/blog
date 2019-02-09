@@ -1,6 +1,5 @@
 import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, VersionColumn, Index, ManyToOne } from "typeorm";
 
-import { Partial } from "../utils/Partial";
 import { ContentNode } from "../models/ContentNode";
 import { PageMetadata } from "../models/PageMetadata";
 import { Actor } from "../entities/Actor";
@@ -29,17 +28,20 @@ export class Page
     public createdDate: Date;
 
     @UpdateDateColumn()
-    public updateDate: Date;
+    public updateDate: Date | undefined;
 
     @VersionColumn()
     public version: number;
 
-    constructor(guid: string, title: string, owner: Actor = null)
+    constructor(guid: string, title: string, owner: Actor, createdDate: Date, version: number, updateDate?: Date)
     {
         this.guid = guid;
         this.owner = owner;
         this.content = [];
         this.metadata = new PageMetadata();
+        this.createdDate = createdDate;
+        this.updateDate = updateDate;
+        this.version = version;
 
         if (title === "")
         {
@@ -52,21 +54,21 @@ export class Page
     }
 }
 
-type PageQueryParams = {
+interface PageQueryParams {
     guid?: string;
     title?: string;
     createdDate?: string;
     updateDate?: string;
 };
 
-type PageUpdateParams = {
+interface PageUpdateParams {
     title?: string;
     content?: ContentNode[];
     metadata?: PageMetadata;
     ownerGuid?: string;
 };
 
-type PageCreateParams = {
+interface PageCreateParams {
     title?: string;
 }
 

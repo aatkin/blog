@@ -1,19 +1,19 @@
 const Types = {
-    // api
-    UserController: Symbol("UserController"),
-    PageController: Symbol("PageController"),
+  // api
+  UserController: Symbol("UserController"),
+  PageController: Symbol("PageController"),
 
-    // routes
-    ApiRoute: Symbol("ApiRoute"),
-    UserRoute: Symbol("UserRoute"),
-    PageRoute: Symbol("PageRoute"),
+  // routes
+  ApiRoute: Symbol("ApiRoute"),
+  UserRoute: Symbol("UserRoute"),
+  PageRoute: Symbol("PageRoute"),
 
-    // utils
-    Logger: Symbol("Logger"),
+  // utils
+  Logger: Symbol("Logger"),
 
-    // main
-    DatabaseService: Symbol("DatabaseService"),
-    AuthenticationController: Symbol("AuthenticationController")
+  // main
+  DatabaseService: Symbol("DatabaseService"),
+  AuthenticationController: Symbol("AuthenticationController")
 };
 
 export { Types };

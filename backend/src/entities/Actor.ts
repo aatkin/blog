@@ -4,46 +4,45 @@ import { Role } from "./Role";
 import { Page } from "./Page";
 import { UserIdentity } from "./UserIdentity";
 
-
 @Entity()
-export class Actor
-{
-    @PrimaryColumn({ length: 36 })
-    public guid: string;
+export class Actor {
+  @PrimaryColumn({ length: 36 })
+  public guid: string;
 
-    @Column()
-    @Index()
-    public name: string;
+  @Column()
+  @Index()
+  public name: string;
 
-    @OneToOne<UserIdentity>(t => UserIdentity, user => user.actor, { cascade: ["insert", "update"] })
-    public user: UserIdentity;
+  @OneToOne<UserIdentity>(t => UserIdentity, user => user.actor, {
+    cascade: ["insert", "update"]
+  })
+  public user: UserIdentity;
 
-    @OneToMany<Role>(t => Role, role => role.actors, { cascade: ["insert"] })
-    @JoinColumn()
-    public role: Role;
+  @OneToMany<Role>(t => Role, role => role.actors, { cascade: ["insert"] })
+  @JoinColumn()
+  public role: Role;
 
-    @OneToMany<Page>(t => Page, page => page.owner, { cascade: ["insert"] })
-    public pages: Page[];
+  @OneToMany<Page>(t => Page, page => page.owner, { cascade: ["insert"] })
+  public pages: Page[];
 
-    constructor(guid: string, name: string, role: Role, user?: UserIdentity, pages?: Page[])
-    {
-        this.guid = guid;
-        this.name = name;
-        this.user = user!;
-        this.role = role;
-        this.pages = pages || [];
-    }
+  constructor(guid: string, name: string, role: Role, user?: UserIdentity, pages?: Page[]) {
+    this.guid = guid;
+    this.name = name;
+    this.user = user!;
+    this.role = role;
+    this.pages = pages || [];
+  }
 }
 
-type ActorQueryParams = {
-    name?: string;
-    guid?: string;
-};
+interface ActorQueryParams {
+  name?: string;
+  guid?: string;
+}
 
-type ActorUpdateParams = {
-    name?: string;
-    role?: Role;
-    pages?: Page[];
-};
+interface ActorUpdateParams {
+  name?: string;
+  role?: Role;
+  pages?: Page[];
+}
 
 export { ActorQueryParams, ActorUpdateParams };
