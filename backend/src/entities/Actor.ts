@@ -1,8 +1,8 @@
 import { Entity, Column, PrimaryColumn, OneToOne, OneToMany, JoinColumn, Index } from "typeorm";
 
-import { Role } from "./Role";
-import { Page } from "./Page";
-import { UserIdentity } from "./UserIdentity";
+import { Role } from "src/entities/Role";
+import { Page } from "src/entities/Page";
+import { UserIdentity } from "src/entities/UserIdentity";
 
 @Entity()
 export class Actor {

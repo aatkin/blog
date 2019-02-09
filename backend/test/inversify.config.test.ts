@@ -1,9 +1,9 @@
 import { Container, injectable } from "inversify";
 import * as express from "express";
 
-import { ILoggerService } from "../src/services/LoggerService";
-import { IAuthenticationController } from "../src/controllers/AuthenticationController";
-import { Types } from "../src/Types";
+import { ILoggerService } from "src/services/LoggerService";
+import { IAuthenticationController } from "src/controllers/AuthenticationController";
+import { Types } from "src/Types";
 
 @injectable()
 export class MockLogger {

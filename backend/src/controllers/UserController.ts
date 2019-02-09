@@ -2,18 +2,18 @@ import { injectable, inject } from "inversify";
 import * as uuid from "uuid/v4";
 import * as bcrypt from "bcrypt";
 
-import { Types } from "../Types";
-import { IDatabaseService } from "../services/DatabaseService";
-import { ILoggerService } from "../services/LoggerService";
-import { UserIdentity, UserIdentityUpdateParams, UserIdentityCreateParams, UserIdentityQueryParams } from "../entities/UserIdentity";
-import { Role } from "../entities/Role";
-import { Actor, ActorQueryParams } from "../entities/Actor";
-import { DatabaseException } from "../exceptions/DatabaseException";
-import { UserNotFoundException } from "../exceptions/UserNotFoundException";
-import { ActorNotFoundException } from "../exceptions/ActorNotFoundException";
-import { RoleNotFoundException } from "../exceptions/RoleNotFoundException";
-import { ValidationException } from "../exceptions/ValidationException";
-import { ValidationError } from "../constants/Errors";
+import { Types } from "src/Types";
+import { IDatabaseService } from "src/services/DatabaseService";
+import { ILoggerService } from "src/services/LoggerService";
+import { UserIdentity, UserIdentityUpdateParams, UserIdentityCreateParams, UserIdentityQueryParams } from "src/entities/UserIdentity";
+import { Role } from "src/entities/Role";
+import { Actor, ActorQueryParams } from "src/entities/Actor";
+import { DatabaseException } from "src/exceptions/DatabaseException";
+import { UserNotFoundException } from "src/exceptions/UserNotFoundException";
+import { ActorNotFoundException } from "src/exceptions/ActorNotFoundException";
+import { RoleNotFoundException } from "src/exceptions/RoleNotFoundException";
+import { ValidationException } from "src/exceptions/ValidationException";
+import { ValidationError } from "src/constants/Errors";
 
 export interface IUserController {
   getActorsAsync(): Promise<Actor[]>;
@@ -34,7 +34,7 @@ export class UserController implements IUserController {
 
   public async getActorsAsync(): Promise<Actor[]> {
     try {
-      const actorRepository = await this.databaseService.connection.getRepository(Actor);
+      const actorRepository = await this.databaseService.connection!.getRepository(Actor);
       const actors = await actorRepository
         .createQueryBuilder("actor")
         .innerJoinAndSelect("actor.role", "role")
@@ -53,7 +53,7 @@ export class UserController implements IUserController {
         throw new ValidationException(ValidationError.BadUserGuidError);
       }
 
-      const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
+      const userRepository = await this.databaseService.connection!.getRepository(UserIdentity);
       let user;
 
       if (userParams.guid != null) {
@@ -89,7 +89,7 @@ export class UserController implements IUserController {
         throw new ValidationException(ValidationError.BadUserGuidError);
       }
 
-      const actorRepository = await this.databaseService.connection.getRepository(Actor);
+      const actorRepository = await this.databaseService.connection!.getRepository(Actor);
       let actor;
 
       if (actorParams.guid != null) {
@@ -130,7 +130,7 @@ export class UserController implements IUserController {
         throw new ValidationException(ValidationError.BadUpdateParamsError);
       }
 
-      const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
+      const userRepository = await this.databaseService.connection!.getRepository(UserIdentity);
       const user = await userRepository
         .createQueryBuilder("user")
         .where("user.guid = :keyword", { keyword: userGuid })
@@ -161,7 +161,7 @@ export class UserController implements IUserController {
         throw new ValidationException(ValidationError.BadPasswordError);
       }
 
-      const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
+      const userRepository = await this.databaseService.connection!.getRepository(UserIdentity);
       const user = await userRepository
         .createQueryBuilder("user")
         .where("user.guid = :keyword", { keyword: userGuid })
@@ -195,9 +195,9 @@ export class UserController implements IUserController {
         throw new ValidationException(ValidationError.BadUserNameError);
       }
 
-      const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
-      const actorRepository = await this.databaseService.connection.getRepository(Actor);
-      const roleRepository = await this.databaseService.connection.getRepository(Role);
+      const userRepository = await this.databaseService.connection!.getRepository(UserIdentity);
+      const actorRepository = await this.databaseService.connection!.getRepository(Actor);
+      const roleRepository = await this.databaseService.connection!.getRepository(Role);
 
       const guid = uuid();
       const name = params.name;

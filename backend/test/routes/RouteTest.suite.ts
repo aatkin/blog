@@ -9,7 +9,7 @@ import * as express from "express";
 const { expect } = chai;
 chai.use(chaiHttp);
 
-import { Server } from "../../src/Server";
+import { Server } from "../src/Server";
 import { container } from "../inversify.config.test";
 
 describe("simple get route", () => {
@@ -20,9 +20,14 @@ describe("simple get route", () => {
     route.get("/", (req, res, next) => {
       res.status(200).json({ test: true });
     });
-    server = new Server(container, undefined, () => {}, app => {
-      app.use("/test", route);
-    });
+    server = new Server(
+      container,
+      undefined,
+      () => {},
+      app => {
+        app.use("/test", route);
+      }
+    );
   });
 
   it("should return 200", (done: Function) => {

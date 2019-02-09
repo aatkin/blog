@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryColumn, ManyToOne, Index } from "typeorm";
 
-import { Actor } from "./Actor";
+import { Actor } from "src/entities/Actor";
 
 @Entity()
 export class Role {

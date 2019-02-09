@@ -1,12 +1,12 @@
 import { injectable, inject } from "inversify";
 import * as express from "express";
 
-import { Types } from "../../Types";
-import { IPageController } from "../../controllers/PageController";
-import { AuthenticatedRequest } from "../../controllers/AuthenticationController";
-import { ILoggerService } from "../../services/LoggerService";
-import { ValidationError } from "../../constants/Errors";
-import { PageQueryParams, PageCreateParams, PageUpdateParams } from "../../entities/Page";
+import { Types } from "src/Types";
+import { IPageController } from "src/controllers/PageController";
+import { AuthenticatedRequest } from "src/controllers/AuthenticationController";
+import { ILoggerService } from "src/services/LoggerService";
+import { ValidationError } from "src/constants/Errors";
+import { PageQueryParams, PageCreateParams, PageUpdateParams } from "src/entities/Page";
 
 export interface IPageRoute {
   router: express.Router;

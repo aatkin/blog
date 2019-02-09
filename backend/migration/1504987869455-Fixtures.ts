@@ -2,10 +2,10 @@ import { MigrationInterface, QueryRunner } from "typeorm";
 import * as uuid from "uuid/v4";
 import * as bcrypt from "bcrypt";
 
-import { Role } from "../src/entities/Role";
-import { Actor } from "../src/entities/Actor";
-import { UserIdentity } from "../src/entities/UserIdentity";
-import { Page } from "../src/entities/Page";
+import { Role } from "src/entities/Role";
+import { Actor } from "src/entities/Actor";
+import { UserIdentity } from "src/entities/UserIdentity";
+import { Page } from "src/entities/Page";
 
 const adminRole = new Role(uuid(), "Admin", "ADMIN");
 

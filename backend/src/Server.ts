@@ -2,10 +2,10 @@ import { Container, injectable } from "inversify";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 
-import { Types } from "./Types";
-import { ILoggerService } from "./services/LoggerService";
-import { IAuthenticationController, AuthenticationCredentials } from "./controllers/AuthenticationController";
-import { IApiRoute, ApiRoute } from "./routes/Api";
+import { Types } from "src/Types";
+import { ILoggerService } from "src/services/LoggerService";
+import { IAuthenticationController, AuthenticationCredentials } from "src/controllers/AuthenticationController";
+import { IApiRoute, ApiRoute } from "src/routes/Api";
 
 /**
  * Back-end server class

@@ -2,8 +2,8 @@ import { injectable, inject } from "inversify";
 import { createConnection, Connection } from "typeorm";
 import * as config from "config";
 
-import { Types } from "../Types";
-import { ILoggerService } from "../services/LoggerService";
+import { Types } from "src/Types";
+import { ILoggerService } from "src/services/LoggerService";
 
 export interface IDatabaseService {
   connection: Connection | null;

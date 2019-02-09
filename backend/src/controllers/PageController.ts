@@ -1,15 +1,15 @@
 import { injectable, inject } from "inversify";
 import * as uuid from "uuid/v4";
 
-import { Types } from "../Types";
-import { DatabaseException } from "../exceptions/DatabaseException";
-import { PageNotFoundException } from "../exceptions/PageNotFoundException";
-import { DatabaseError } from "../constants/Errors";
-import { IDatabaseService } from "../services/DatabaseService";
-import { ILoggerService } from "../services/LoggerService";
+import { Types } from "src/Types";
+import { DatabaseException } from "src/exceptions/DatabaseException";
+import { PageNotFoundException } from "src/exceptions/PageNotFoundException";
+import { DatabaseError } from "src/constants/Errors";
+import { IDatabaseService } from "src/services/DatabaseService";
+import { ILoggerService } from "src/services/LoggerService";
 import { IUserController } from "./UserController";
-import { Page, PageQueryParams, PageUpdateParams, PageCreateParams } from "../entities/Page";
-import { Actor } from "../entities/Actor";
+import { Page, PageQueryParams, PageUpdateParams, PageCreateParams } from "src/entities/Page";
+import { Actor } from "src/entities/Actor";
 
 export interface IPageController {
   getPagesAsync(): Promise<Page[]>;
@@ -30,7 +30,7 @@ export class PageController implements IPageController {
 
   public async getPagesAsync(): Promise<Page[]> {
     try {
-      const pageRepository = await this.databaseService.connection.getRepository(Page);
+      const pageRepository = await this.databaseService.connection!.getRepository(Page);
       const pages = await pageRepository
         .createQueryBuilder("page")
         .leftJoinAndSelect("page.owner", "owner")
@@ -45,7 +45,7 @@ export class PageController implements IPageController {
 
   public async getActorPagesAsync(actorGuid: string): Promise<Page[]> {
     try {
-      const pageRepository = await this.databaseService.connection.getRepository(Page);
+      const pageRepository = await this.databaseService.connection!.getRepository(Page);
       const pages = await pageRepository
         .createQueryBuilder("page")
         .where("page.owner = :keyword", { keyword: actorGuid })
@@ -59,7 +59,7 @@ export class PageController implements IPageController {
 
   public async getPageAsync(pageParams: PageQueryParams): Promise<Page> {
     try {
-      const pageRepository = await this.databaseService.connection.getRepository(Page);
+      const pageRepository = await this.databaseService.connection!.getRepository(Page);
       let page;
 
       if (pageParams.guid != null) {
@@ -90,10 +90,10 @@ export class PageController implements IPageController {
   }
 
   public async createPageAsync(actor: Actor, pageParams: PageCreateParams): Promise<Page> {
-    const newPage = new Page(uuid(), pageParams.title || '', actor, new Date(), 0);
+    const newPage = new Page(uuid(), pageParams.title || "", actor, new Date(), 0);
 
     try {
-      const pageRepository = await this.databaseService.connection.getRepository(Page);
+      const pageRepository = await this.databaseService.connection!.getRepository(Page);
       return await pageRepository.save(newPage);
     } catch (e) {
       this.logger.error(e);
@@ -103,7 +103,7 @@ export class PageController implements IPageController {
 
   public async updatePageAsync(guid: string, pageParams: PageUpdateParams): Promise<Page> {
     try {
-      const pageRepository = await this.databaseService.connection.getRepository(Page);
+      const pageRepository = await this.databaseService.connection!.getRepository(Page);
       const page = await this.getPageAsync({ guid });
 
       if (page == null) {

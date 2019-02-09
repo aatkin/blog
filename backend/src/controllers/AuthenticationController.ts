@@ -6,16 +6,16 @@ import { ExtractJwt, Strategy, StrategyOptions } from "passport-jwt";
 import * as jwt from "jwt-simple";
 import * as config from "config";
 
-import { Types } from "../Types";
-import { IDatabaseService } from "../services/DatabaseService";
-import { ILoggerService } from "../services/LoggerService";
-import { IUserController } from "./UserController";
-import { UserIdentity, UserIdentityQueryParams } from "../entities/UserIdentity";
-import { Actor, ActorQueryParams } from "../entities/Actor";
-import { DatabaseException } from "../exceptions/DatabaseException";
-import { Exception } from "../exceptions/Exception";
-import { DatabaseError } from "../constants/Errors";
-import { Time } from "../constants/Time";
+import { Types } from "src/Types";
+import { IDatabaseService } from "src/services/DatabaseService";
+import { ILoggerService } from "src/services/LoggerService";
+import { IUserController } from "src/controllers/UserController";
+import { UserIdentity, UserIdentityQueryParams } from "src/entities/UserIdentity";
+import { Actor, ActorQueryParams } from "src/entities/Actor";
+import { DatabaseException } from "src/exceptions/DatabaseException";
+import { Exception } from "src/exceptions/Exception";
+import { DatabaseError } from "src/constants/Errors";
+import { Time } from "src/constants/Time";
 
 export interface AuthenticationCredentials {
   userName: string;
@@ -48,10 +48,10 @@ export class AuthenticationController implements IAuthenticationController {
       });
 
       if (user != null) {
-        this.logger.debug("Authentication: Found user in database:", payload.guid);
+        this.logger.debug(`Authentication: Found user in database: ${payload.guid}`);
         return done(null, { guid: user.guid });
       } else {
-        this.logger.error("Authentication: User not found:", payload.guid);
+        this.logger.error(`Authentication: User not found: ${payload.guid}`);
         return done(DatabaseError.UserNotFoundError, null);
       }
     });

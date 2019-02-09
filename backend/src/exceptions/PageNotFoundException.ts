@@ -1,4 +1,4 @@
-import { Exception } from "./Exception";
+import { Exception } from "src/exceptions/Exception";
 
 export class PageNotFoundException extends Exception {
   constructor(message?: string) {

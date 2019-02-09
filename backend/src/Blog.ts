@@ -2,12 +2,12 @@ import "reflect-metadata";
 import { Connection } from "typeorm";
 
 // container should be imported first..?
-import { container } from "./inversify.config";
+import { container } from "src/inversify.config";
 
-import { ILoggerService } from "./services/LoggerService";
-import { IDatabaseService } from "./services/DatabaseService";
-import { Server } from "./Server";
-import { Types } from "./Types";
+import { ILoggerService } from "src/services/LoggerService";
+import { IDatabaseService } from "src/services/DatabaseService";
+import { Server } from "src/Server";
+import { Types } from "src/Types";
 
 let connection: Connection;
 

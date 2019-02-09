@@ -1,5 +1,5 @@
-import { ContentNode } from "../ContentNode";
-import { ValidationException } from "../../exceptions/ValidationException";
+import { ContentNode } from "src/models/ContentNode";
+import { ValidationException } from "src/exceptions/ValidationException";
 
 export interface LinkNodeContent {
   src?: string;

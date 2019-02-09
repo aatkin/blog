@@ -3,7 +3,7 @@ import "reflect-metadata";
 
 import { assert } from "chai";
 
-import { Server } from "../src/Server";
+import { Server } from "src/Server";
 
 describe("empty server", () => {
   it("should have app property", () => {

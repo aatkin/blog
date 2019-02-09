@@ -1,9 +1,9 @@
 import { injectable } from "inversify";
 import * as path from "path";
-import * as winston from "winston";
+import { createLogger, Logger, transports, format } from "winston";
 
 import * as config from "config";
-import * as chalk from "chalk";
+// import * as chalk from "chalk";
 
 export interface ILoggerService {
   error(message: string): void;
@@ -16,19 +16,20 @@ export interface ILoggerService {
 
 @injectable()
 export class LoggerService implements ILoggerService {
-  private _logger: winston.Logger;
+  private _logger: Logger;
 
   constructor() {
     const logFilePath: string = config.get("logger.filepath");
     const logLevel: string = config.get("logger.level");
 
-    this._logger = winston.createLogger({
+    this._logger = createLogger({
+      format: format.combine(format.timestamp(), format.prettyPrint()),
       transports: [
-        new winston.transports.Console({
+        new transports.Console({
           level: "debug",
-          format: winston.format.colorize()
+          format: format.combine(format.colorize(), format.simple()),
         }),
-        new winston.transports.File({
+        new transports.File({
           level: logLevel,
           filename: path.resolve("./", logFilePath)
         })

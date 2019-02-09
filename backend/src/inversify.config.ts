@@ -1,15 +1,15 @@
 import { Container } from "inversify";
 
-import { IUserController, UserController } from "./controllers/UserController";
-import { IPageController, PageController } from "./controllers/PageController";
-import { IAuthenticationController, AuthenticationController } from "./controllers/AuthenticationController";
-import { IApiRoute, ApiRoute } from "./routes";
-import { IUserRoute, UserRoute } from "./routes/api/UserRoute";
-import { IPageRoute, PageRoute } from "./routes/api/PageRoute";
-import { ILoggerService, LoggerService } from "./services/LoggerService";
-import { IDatabaseService, DatabaseService } from "./services/DatabaseService";
+import { IUserController, UserController } from "src/controllers/UserController";
+import { IPageController, PageController } from "src/controllers/PageController";
+import { IAuthenticationController, AuthenticationController } from "src/controllers/AuthenticationController";
+import { IApiRoute, ApiRoute } from "src/routes/api/index";
+import { IUserRoute, UserRoute } from "src/routes/api/UserRoute";
+import { IPageRoute, PageRoute } from "src/routes/api/PageRoute";
+import { ILoggerService, LoggerService } from "src/services/LoggerService";
+import { IDatabaseService, DatabaseService } from "src/services/DatabaseService";
 
-import { Types } from "./Types";
+import { Types } from "src/Types";
 
 const container = new Container();
 

@@ -1,5 +1,5 @@
-import { ContentNode, ContentType } from "../ContentNode";
-import { ValidationException } from "../../exceptions/ValidationException";
+import { ContentNode, ContentType } from "src/models/ContentNode";
+import { ValidationException } from "src/exceptions/ValidationException";
 
 export interface ContainerNodeContent {
   layout: "row" | "column";

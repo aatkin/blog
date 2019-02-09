@@ -1,14 +1,12 @@
 [
     {
         "name": "default",
-        "driver": {
-            "type": "postgres",
-            "host": "localhost",
-            "port": 5432,
-            "username": "blog",
-            "password": "secret123",
-            "database": "blog"
-        },
+        "type": "postgres",
+        "host": "localhost",
+        "port": 5432,
+        "username": "blog",
+        "password": "secret123",
+        "database": "blog",
         "entities": [
             "./dist/src/entities/**/*.js"
         ],

@@ -1,9 +1,9 @@
-import { UnknownContentNodeException } from "../exceptions/UnknownContentNodeException";
-import { ValidationException } from "../exceptions/ValidationException";
-import { ContainerNode, ContainerNodeContent } from "./ContentTypes/ContainerNode";
-import { ImageNode, ImageNodeContent } from "./ContentTypes/ImageNode";
-import { LinkNode, LinkNodeContent } from "./ContentTypes/LinkNode";
-import { TextNode, TextNodeContent } from "./ContentTypes/TextNode";
+import { UnknownContentNodeException } from "src/exceptions/UnknownContentNodeException";
+import { ValidationException } from "src/exceptions/ValidationException";
+import { ContainerNode, ContainerNodeContent } from "src/models/ContentTypes/ContainerNode";
+import { ImageNode, ImageNodeContent } from "src/models/ContentTypes/ImageNode";
+import { LinkNode, LinkNodeContent } from "src/models/ContentTypes/LinkNode";
+import { TextNode, TextNodeContent } from "src/models/ContentTypes/TextNode";
 
 export class ContentNode {
   public contentType: ContentType;
@@ -65,4 +65,4 @@ const ContentNodeController = {
         throw new UnknownContentNodeException(node.contentType);
     }
   }
-}
+};
