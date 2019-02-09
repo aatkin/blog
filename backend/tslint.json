@@ -1,35 +1,31 @@
 {
-    "extends": "tslint-microsoft-contrib",
+    "extends": ["tslint:recommended", "tslint-config-prettier"],
     "rules": {
-        "missing-jsdoc": 0,
-        "quotemark": false,
-        "no-console": [false],
-        "export-name": 0,
-        "no-relative-imports": 0,
-        "no-reference": false,
+        // "missing-jsdoc": 0,
+        // "quotemark": false,
+        // "no-console": [false],
+        // "export-name": 0,
+        // "no-relative-imports": 0,
+        // "no-reference": false,
         "ordered-imports": [
             false
         ],
-        "typedef": [false],
-        "no-require-imports": false,
+        // "typedef": [false],
+        // "no-require-imports": false,
 
-        "no-empty": false,
-        "one-line": [false],
-        "no-consecutive-blank-lines": false,
-        "no-any": false,
-        "variable-name": false,
-        "no-parameter-properties": false,
-        "interface-name": false,
-        "no-stateless-class": false,
-        "function-name": false,
-        "no-unnecessary-local-variable": false,
-        "no-suspicious-comment": false,
-        "no-backbone-get-set-outside-model": false,
-        "max-line-length": false,
-        "align": false
-    },
-
-    "rulesDirectory": [
-        "node_modules/tslint-no-unused-expression-chai/rules"
-    ]
+        // "no-empty": false,
+        // "one-line": [false],
+        // "no-consecutive-blank-lines": false,
+        // "no-any": false,
+        // "variable-name": false,
+        // "no-parameter-properties": false,
+        // "interface-name": false,
+        // "no-stateless-class": false,
+        // "function-name": false,
+        // "no-unnecessary-local-variable": false,
+        // "no-suspicious-comment": false,
+        // "no-backbone-get-set-outside-model": false,
+        // "max-line-length": false,
+        // "align": false
+    }
 }
