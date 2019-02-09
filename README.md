@@ -1,8 +1,9 @@
 # blog
 Headless CMS
+  - Nginx proxy
   - Back-end:
     * Node.JS + Typescript
-    * TypeORM + PostgreSQL
+    * TypeORM + PostgreSQL in Docker container
     * Inversify (DI container)
   - Client:
-    * Angular + Typescript
+    * React + Typescript
