@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify";
 import * as express from "express";
-import { pick } from 'ramda';
+import { pick } from "ramda";
 
 import { Types } from "src/Types";
 import { IUserController } from "src/controllers/UserController";
@@ -75,58 +75,50 @@ export class UserRoute implements IUserRoute {
     }
   }
 
-  private async getActor(req: express.Request, res: express.Response, next: express.NextFunction)
-  {
-      const { name } = req.body.user as UserIdentityQueryParams;
+  private async getActor(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { name } = req.body.user as UserIdentityQueryParams;
 
-      if (!name)
-      {
-          return next(new ValidationException("Parameter 'name' is null or undefined"));
-      }
+    if (!name) {
+      return next(new ValidationException("Parameter 'name' is null or undefined"));
+    }
 
-      try
-      {
-          const actor = await this.userController.getActorAsync({ name });
-          return res.json({ actor });
-      }
-      catch (e)
-      {
-          next(e);
-      }
+    try {
+      const actor = await this.userController.getActorAsync({ name });
+      return res.json({ actor });
+    } catch (e) {
+      next(e);
+    }
   }
 
-  private async updateUser(req: express.Request, res: express.Response, next: express.NextFunction)
-  {
-      const { guid, name, role } = req.body.user as UserIdentityUpdateParams;
+  private async updateUser(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const { guid, name, role } = req.body.user as UserIdentityUpdateParams;
 
-      if (guid == null)
-      {
-          return next(new ValidationException("User guid is null or undefined"));
+    if (guid == null) {
+      return next(new ValidationException("User guid is null or undefined"));
+    }
+
+    if (name == null && role == null) {
+      return next(new ValidationException("All update parameters are null or undefined"));
+    }
+
+    try {
+      const changeSet: UserIdentityUpdateParams = {};
+      if (name != null) {
+        Object.assign(changeSet, { name });
+      }
+      if (role != null) {
+        Object.assign(changeSet, { role });
       }
 
-      if (name == null && role == null)
-      {
-          return next(new ValidationException("All update parameters are null or undefined"));
+      const actor = await this.userController.updateUserAsync(guid, changeSet);
+      res.json({ actor });
+    } catch (e) {
+      if (e instanceof UserNotFoundException) {
+        return res.status(400).send({ error: DatabaseError.UserNotFoundError });
       }
 
-      try
-      {
-          const changeSet: UserIdentityUpdateParams = {};
-          if (name != null) { Object.assign(changeSet, { name }); }
-          if (role != null) { Object.assign(changeSet, { role }); }
-
-          const actor = await this.userController.updateUserAsync(guid, changeSet);
-          res.json({ actor });
-      }
-      catch (e)
-      {
-          if (e instanceof UserNotFoundException)
-          {
-              return res.status(400).send({ error: DatabaseError.UserNotFoundError });
-          }
-
-          next(e);
-      }
+      next(e);
+    }
   }
 
   private async createUser(req: express.Request, res: express.Response, next: express.NextFunction) {
