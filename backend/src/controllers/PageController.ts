@@ -4,6 +4,8 @@ import * as uuid from "uuid/v4";
 import { Types } from "src/Types";
 import { DatabaseException } from "src/exceptions/DatabaseException";
 import { PageNotFoundException } from "src/exceptions/PageNotFoundException";
+import { NotAuthorizedException } from "src/exceptions/NotAuthorizedException";
+import { InternalServerException } from "src/exceptions/InternalServerException";
 import { DatabaseError } from "src/constants/Errors";
 import { IDatabaseService } from "src/services/DatabaseService";
 import { ILoggerService } from "src/services/LoggerService";
@@ -16,7 +18,7 @@ export interface IPageController {
   getActorPagesAsync(actorGuid: string): Promise<Page[]>;
   getPageAsync(pageParams: PageQueryParams): Promise<Page>;
   createPageAsync(actor: Actor, pageParams: PageCreateParams): Promise<Page>;
-  updatePageAsync(guid: string, pageParams: PageUpdateParams): Promise<Page>;
+  updatePageAsync(guid: string, pageParams: PageUpdateParams, actor: Actor): Promise<Page>;
 }
 
 @injectable()
@@ -30,7 +32,7 @@ export class PageController implements IPageController {
 
   public async getPagesAsync(): Promise<Page[]> {
     try {
-      const pageRepository = await this.databaseService.connection!.getRepository(Page);
+      const pageRepository = await this.databaseService.connection.getRepository(Page);
       const pages = await pageRepository
         .createQueryBuilder("page")
         .leftJoinAndSelect("page.owner", "owner")
@@ -38,28 +40,26 @@ export class PageController implements IPageController {
 
       return pages;
     } catch (e) {
-      this.logger.error(e);
-      throw new DatabaseException(DatabaseError.PageNotFoundError);
+      throw InternalServerException.fromError(e);
     }
   }
 
   public async getActorPagesAsync(actorGuid: string): Promise<Page[]> {
     try {
-      const pageRepository = await this.databaseService.connection!.getRepository(Page);
+      const pageRepository = await this.databaseService.connection.getRepository(Page);
       const pages = await pageRepository
         .createQueryBuilder("page")
         .where("page.owner = :keyword", { keyword: actorGuid })
         .getMany();
       return pages;
     } catch (e) {
-      this.logger.error(e);
-      throw new DatabaseException(DatabaseError.PageNotFoundError);
+      throw InternalServerException.fromError(e);
     }
   }
 
   public async getPageAsync(pageParams: PageQueryParams): Promise<Page> {
     try {
-      const pageRepository = await this.databaseService.connection!.getRepository(Page);
+      const pageRepository = await this.databaseService.connection.getRepository(Page);
       let page;
 
       if (pageParams.guid != null) {
@@ -84,8 +84,11 @@ export class PageController implements IPageController {
 
       return page;
     } catch (e) {
-      this.logger.error(e);
-      throw new DatabaseException(DatabaseError.PageNotFoundError);
+      if (e instanceof PageNotFoundException) {
+        throw e;
+      } else {
+        throw InternalServerException.fromError(e);
+      }
     }
   }
 
@@ -93,21 +96,28 @@ export class PageController implements IPageController {
     const newPage = new Page(uuid(), pageParams.title || "", actor, new Date(), 0);
 
     try {
-      const pageRepository = await this.databaseService.connection!.getRepository(Page);
+      const pageRepository = await this.databaseService.connection.getRepository(Page);
       return await pageRepository.save(newPage);
     } catch (e) {
-      this.logger.error(e);
-      throw new DatabaseException(DatabaseError.PagePersistError);
+      throw InternalServerException.fromError(e);
     }
   }
 
-  public async updatePageAsync(guid: string, pageParams: PageUpdateParams): Promise<Page> {
+  public async updatePageAsync(
+    guid: string,
+    pageParams: PageUpdateParams,
+    actor: Actor
+  ): Promise<Page> {
     try {
-      const pageRepository = await this.databaseService.connection!.getRepository(Page);
+      const pageRepository = await this.databaseService.connection.getRepository(Page);
       const page = await this.getPageAsync({ guid });
 
       if (!page) {
         throw new DatabaseException(DatabaseError.PageNotFoundError);
+      }
+
+      if (actor.guid !== page.owner.guid) {
+        throw new NotAuthorizedException("Not authorized");
       }
 
       // TODO: content nodes must be validated before persisting
@@ -130,11 +140,11 @@ export class PageController implements IPageController {
       await pageRepository.save(page);
       return page;
     } catch (e) {
-      if (e instanceof DatabaseException) {
+      if (e instanceof DatabaseException || e instanceof NotAuthorizedException) {
         throw e;
+      } else {
+        throw InternalServerException.fromError(e);
       }
-      this.logger.error(e.stack);
-      throw new DatabaseException(DatabaseError.PagePersistError);
     }
   }
 }

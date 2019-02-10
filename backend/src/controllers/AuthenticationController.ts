@@ -5,7 +5,6 @@ import * as bcrypt from "bcrypt";
 import { ExtractJwt, Strategy, StrategyOptions } from "passport-jwt";
 import * as jwt from "jwt-simple";
 import * as NodeCache from "node-cache";
-import * as uuid from "uuid/v4";
 
 import { Types } from "src/Types";
 import { IDatabaseService } from "src/services/DatabaseService";
@@ -16,6 +15,7 @@ import { UserIdentity } from "src/entities/UserIdentity";
 import { Actor } from "src/entities/Actor";
 import { DatabaseError } from "src/constants/Errors";
 import { Time } from "src/constants/Time";
+import { NotAuthorizedException } from "src/exceptions/NotAuthorizedException";
 
 export interface AuthenticationCredentials {
   userName: string;
@@ -54,7 +54,7 @@ export class AuthenticationController implements IAuthenticationController {
       const cacheKey = this.getCacheKeyFromJWTToken(payload);
       if (!this.authenticationCache.get(cacheKey)) {
         this.logger.debug("Authentication token expired");
-        return done("Authentication token expired", null);
+        return done(new NotAuthorizedException("Invalid authentication"), null);
       }
       this.logger.debug("Found token from authentication cache");
 
@@ -110,7 +110,6 @@ export class AuthenticationController implements IAuthenticationController {
       });
 
       if (user != null && (await bcrypt.compare(credentials.password, user.passwordHash))) {
-        // jwt expiration token is recognized by passport-jwt
         const payload: JWTToken = { guid: user.guid };
         const token = jwt.encode(payload, this.config.get("authentication.jwtSecret"));
         const cacheKey = this.getCacheKeyFromJWTToken(payload);

@@ -4,6 +4,7 @@ import * as bodyParser from "body-parser";
 
 import { Types } from "src/Types";
 import { ValidationException } from "src/exceptions/ValidationException";
+import { NotAuthorizedException } from "src/exceptions/NotAuthorizedException";
 import { ILoggerService } from "src/services/LoggerService";
 import {
   IAuthenticationController,
@@ -130,6 +131,9 @@ export class Server {
 
     if (err instanceof ValidationException) {
       return res.status(400).json({ error: err.message });
+    }
+    if (err instanceof NotAuthorizedException) {
+      return res.status(401).json({ error: err.message });
     }
     // handle prod errors as well
     res.status(500).json({

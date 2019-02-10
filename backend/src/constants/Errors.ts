@@ -13,5 +13,6 @@ export enum ValidationError {
   BadPasswordError = "Password validation error",
   BadUserNameError = "User name validation error",
   BadUserGuidError = "User guid validation error",
-  BadUpdateParamsError = "All update params were null or undefined"
+  BadUpdateParamsError = "All update params were null or undefined",
+  NotAuthorized = "Invalid authentication token"
 }

@@ -18,6 +18,7 @@ import { UserNotFoundException } from "src/exceptions/UserNotFoundException";
 import { ActorNotFoundException } from "src/exceptions/ActorNotFoundException";
 import { RoleNotFoundException } from "src/exceptions/RoleNotFoundException";
 import { ValidationException } from "src/exceptions/ValidationException";
+import { InternalServerException } from "src/exceptions/InternalServerException";
 import { ValidationError } from "src/constants/Errors";
 
 export interface IUserController {
@@ -39,7 +40,7 @@ export class UserController implements IUserController {
 
   public async getActorsAsync(): Promise<Actor[]> {
     try {
-      const actorRepository = await this.databaseService.connection!.getRepository(Actor);
+      const actorRepository = await this.databaseService.connection.getRepository(Actor);
       const actors = await actorRepository
         .createQueryBuilder("actor")
         .innerJoinAndSelect("actor.roles", "roles")
@@ -47,7 +48,7 @@ export class UserController implements IUserController {
         .getMany();
       return actors;
     } catch (e) {
-      throw e;
+      throw InternalServerException.fromError(e);
     }
   }
 
@@ -57,7 +58,7 @@ export class UserController implements IUserController {
         throw new ValidationException(ValidationError.BadUserGuidError);
       }
 
-      const userRepository = await this.databaseService.connection!.getRepository(UserIdentity);
+      const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
       let user;
 
       if (userParams.guid != null) {
@@ -82,7 +83,11 @@ export class UserController implements IUserController {
 
       return user;
     } catch (e) {
-      throw e;
+      if (e instanceof UserNotFoundException) {
+        throw e;
+      } else {
+        throw InternalServerException.fromError(e);
+      }
     }
   }
 
@@ -92,7 +97,7 @@ export class UserController implements IUserController {
         throw new ValidationException(ValidationError.BadUserGuidError);
       }
 
-      const actorRepository = await this.databaseService.connection!.getRepository(Actor);
+      const actorRepository = await this.databaseService.connection.getRepository(Actor);
       let actor;
 
       if (actorParams.guid != null) {
@@ -119,7 +124,11 @@ export class UserController implements IUserController {
 
       return actor;
     } catch (e) {
-      throw e;
+      if (e instanceof ActorNotFoundException) {
+        throw e;
+      } else {
+        throw InternalServerException.fromError(e);
+      }
     }
   }
 
@@ -135,7 +144,7 @@ export class UserController implements IUserController {
         throw new ValidationException(ValidationError.BadUpdateParamsError);
       }
 
-      const userRepository = await this.databaseService.connection!.getRepository(UserIdentity);
+      const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
       const user = await userRepository
         .createQueryBuilder("user")
         .where("user.guid = :keyword", { keyword: userGuid })
@@ -150,12 +159,10 @@ export class UserController implements IUserController {
       await userRepository.save(user);
       return user;
     } catch (e) {
-      this.logger.error(e);
-
-      if (e instanceof UserNotFoundException) {
+      if (e instanceof UserNotFoundException || e instanceof ValidationException) {
         throw e;
       } else {
-        throw new DatabaseException("Error while updating user");
+        throw InternalServerException.fromError(e);
       }
     }
   }
@@ -166,7 +173,7 @@ export class UserController implements IUserController {
         throw new ValidationException(ValidationError.BadPasswordError);
       }
 
-      const userRepository = await this.databaseService.connection!.getRepository(UserIdentity);
+      const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
       const user = await userRepository
         .createQueryBuilder("user")
         .where("user.guid = :keyword", { keyword: userGuid })
@@ -181,13 +188,10 @@ export class UserController implements IUserController {
       await userRepository.save(user);
       return user;
     } catch (e) {
-      this.logger.error(e);
-
       if (e instanceof UserNotFoundException || e instanceof ValidationException) {
         throw e;
       }
-
-      throw new DatabaseException("Error while updating user");
+      throw InternalServerException.fromError(e);
     }
   }
 
@@ -200,9 +204,9 @@ export class UserController implements IUserController {
         throw new ValidationException(ValidationError.BadUserNameError);
       }
 
-      const userRepository = await this.databaseService.connection!.getRepository(UserIdentity);
-      const actorRepository = await this.databaseService.connection!.getRepository(Actor);
-      const roleRepository = await this.databaseService.connection!.getRepository(Role);
+      const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
+      const actorRepository = await this.databaseService.connection.getRepository(Actor);
+      const roleRepository = await this.databaseService.connection.getRepository(Role);
 
       const guid = uuid();
       const name = params.name;
@@ -243,13 +247,11 @@ export class UserController implements IUserController {
 
       return newUser;
     } catch (e) {
-      this.logger.error(e);
-
-      if (e instanceof ValidationException) {
+      if (e instanceof ValidationException || e instanceof RoleNotFoundException) {
         throw e;
+      } else {
+        throw new DatabaseException("Error while creating user");
       }
-
-      throw new DatabaseException("Error while creating user");
     }
   }
 }

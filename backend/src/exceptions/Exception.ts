@@ -6,6 +6,12 @@ export declare class Error {
 }
 
 export class Exception extends Error {
+  public static fromError<T extends Exception>(e: Error): T {
+    const exception = new Exception(e.message, e.name);
+    exception.stack = e.stack;
+    return exception as T;
+  }
+
   constructor(public message: string = "", name: string) {
     super(message);
     this.name = name;
