@@ -106,7 +106,7 @@ export class PageController implements IPageController {
       const pageRepository = await this.databaseService.connection!.getRepository(Page);
       const page = await this.getPageAsync({ guid });
 
-      if (page == null) {
+      if (!page) {
         throw new DatabaseException(DatabaseError.PageNotFoundError);
       }
 
@@ -130,12 +130,10 @@ export class PageController implements IPageController {
       await pageRepository.save(page);
       return page;
     } catch (e) {
-      this.logger.error(e);
-
       if (e instanceof DatabaseException) {
         throw e;
       }
-
+      this.logger.error(e.stack);
       throw new DatabaseException(DatabaseError.PagePersistError);
     }
   }

@@ -5,28 +5,40 @@
             "type": "node",
             "request": "launch",
             "name": "DEBUG_BACKEND",
-            "args": [],
+            // "args": ["/mnt/g/Projektit/blog/backend/src/Blog.ts"],
+            "args": ["${workspaceRoot}/backend/src/Blog.ts"],
             "env": {
                 "NODE_ENV": "development"
             },
-            "stopOnEntry": false,
-            "cwd": "${workspaceRoot}/backend",
-            "outFiles": [
-                "${workspaceRoot}/backend/dist/src/**/*.js"
-            ],
-            "program": "${workspaceRoot}/backend/src/Blog.ts",
-            "runtimeExecutable": "nodemon",
-            "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen",
-            "sourceMaps": true,
-            "trace": "sm",
-            "restart": true
+            // "stopOnEntry": false,
+            // "useWSL": true,
+            "remoteRoot": "${command:extension.vscode-wsl-workspaceFolder}",
+            "localRoot": "${workspaceRoot}",
+            // "cwd": "/",
+            // "cwd": "/mnt/g/Projektit/blog",
+            // "program": "${workspaceRoot}/backend/src/Blog.ts",
+            "runtimeExecutable": "ts-node-dev",
+            "runtimeArgs": ["-r", "tsconfig-paths/register", "--nolazy", "--respawn", "--transpileOnly"],
+            "console": "externalTerminal",
+            // "console": "integratedTerminal",
+            // "internalConsoleOptions": "openOnFirstSessionStart",
+            // "sourceMaps": true,
+            // "trace": "sm",
+            "restart": true,
+            "protocol": "inspector",
+            "skipFiles": [
+              "<node_internals>/**/*.js",
+            ]
         },
         {
-            "name": "Attach",
-            "type": "node",
-            "request": "attach",
-            "port": 5858
+          "name": "Attach",
+          "type": "node",
+          "protocol": "inspector",
+          "request": "attach",
+          "port": 9229,
+          "localRoot": "${workspaceRoot}",
+          "remoteRoot": "${command:extension.vscode-wsl-workspaceFolder}",
+          "sourceMaps": true
         }
     ]
 }

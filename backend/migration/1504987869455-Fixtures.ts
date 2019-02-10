@@ -21,7 +21,7 @@ const adminUser = new UserIdentity(
 const adminActor = new Actor(uuid(), "Administrator", [adminRole], adminUser);
 
 const defaultPage = new Page(
-  uuid(),
+  "cd38fb6b-38c9-4f29-9e6a-90a6372f04a2",
   "Front page express 2000. Testailen tässä JWT-tokenin toimintaa.",
   adminActor,
   new Date(),

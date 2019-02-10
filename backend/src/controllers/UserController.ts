@@ -47,7 +47,6 @@ export class UserController implements IUserController {
         .getMany();
       return actors;
     } catch (e) {
-      this.logger.error(e);
       throw e;
     }
   }
@@ -83,7 +82,6 @@ export class UserController implements IUserController {
 
       return user;
     } catch (e) {
-      this.logger.error(e);
       throw e;
     }
   }
@@ -103,7 +101,7 @@ export class UserController implements IUserController {
           .where("actor.guid = :keyword", {
             keyword: actorParams.guid
           })
-          .innerJoinAndSelect("actor.role", "role")
+          .innerJoinAndSelect("actor.roles", "roles")
           .getOne();
       } else {
         actor = await actorRepository
@@ -111,7 +109,7 @@ export class UserController implements IUserController {
           .where("actor.name LIKE :keyword", {
             keyword: actorParams.name
           })
-          .innerJoinAndSelect("actor.role", "role")
+          .innerJoinAndSelect("actor.roles", "roles")
           .getOne();
       }
 
@@ -121,7 +119,6 @@ export class UserController implements IUserController {
 
       return actor;
     } catch (e) {
-      this.logger.error(e);
       throw e;
     }
   }

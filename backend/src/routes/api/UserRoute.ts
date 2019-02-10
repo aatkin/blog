@@ -13,7 +13,6 @@ import { DatabaseError } from "src/constants/Errors";
 
 export interface IUserRoute {
   router: express.Router;
-  getRouteInformation(): any;
 }
 
 @injectable()
@@ -28,22 +27,10 @@ export class UserRoute implements IUserRoute {
     this.attachRoutes();
   }
 
-  public getRouteInformation(): any {
-    return {
-      route: "user",
-      routes: [
-        { method: "GET", url: "/" },
-        { method: "POST", url: "/", params: "user" },
-        { method: "POST", url: "/update", params: "user" },
-        { method: "POST", url: "/create", params: "user" }
-      ]
-    };
-  }
-
   private attachRoutes(): void {
-    this.router.get("/", this.getAllActors.bind(this));
+    this.router.get("/actors", this.getAllActors.bind(this));
     this.router.get("/personal", this.getUser.bind(this));
-    this.router.post("/", this.validateBody, this.getActor.bind(this));
+    this.router.post("/actor", this.validateBody, this.getActor.bind(this));
     this.router.post("/update", this.validateBody, this.updateUser.bind(this));
     this.router.post("/create", this.validateBody, this.createUser.bind(this));
   }

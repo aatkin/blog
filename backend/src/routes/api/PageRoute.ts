@@ -10,7 +10,6 @@ import { PageQueryParams, PageCreateParams, PageUpdateParams } from "src/entitie
 
 export interface IPageRoute {
   router: express.Router;
-  getRouteInformation(): any;
 }
 
 @injectable()
@@ -23,17 +22,6 @@ export class PageRoute implements IPageRoute {
   ) {
     this.router = express.Router();
     this.attachRoutes();
-  }
-
-  public getRouteInformation(): any {
-    return {
-      route: "page",
-      routes: [
-        { method: "GET", route: "/" },
-        { method: "GET", route: "/:userGuid" },
-        { method: "POST", route: "/", params: "page" }
-      ]
-    };
   }
 
   private attachRoutes(): void {

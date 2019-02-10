@@ -22,17 +22,8 @@ export class ApiRoute {
   }
 
   protected attachRoutes(): void {
-    // index route handlers
-    this.router.get("/", this.getIndex.bind(this));
-
-    // subroute handlers
     this.router.use("/user", this.userRoute.router);
     this.router.use("/page", this.pageRoute.router);
-  }
-
-  private getIndex(req: express.Request, res: express.Response, next: express.NextFunction): void {
-    const routes = [this.userRoute.getRouteInformation(), this.pageRoute.getRouteInformation()];
-    res.json({ routes });
   }
 }
 

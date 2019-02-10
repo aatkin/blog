@@ -22,7 +22,7 @@ export class DatabaseService implements IDatabaseService {
   }
 
   private _redis: RedisClient;
-  private _connection: Connection | null = null;
+  private _connection: Connection;
 
   constructor(@inject(Types.Logger) private logger: ILoggerService) {}
 
@@ -63,6 +63,7 @@ export class DatabaseService implements IDatabaseService {
   }
 }
 
+// Async wrapper around node-redis client
 class RedisClient {
   constructor(private client: redis.RedisClient) {}
 
@@ -83,9 +84,7 @@ class RedisClient {
         if (err) {
           return reject(err);
         }
-        // wildcard search returns string[] but the interface doesn't know it
-        // so we need to do some ugly typecasting
-        resolve((reply as unknown) as string[]);
+        resolve(reply);
       });
     });
   }
@@ -96,8 +95,6 @@ class RedisClient {
         if (err) {
           return reject(err);
         }
-        // wildcard search returns string[] but the interface doesn't know it
-        // so we need to do some ugly typecasting
         resolve(reply);
       });
     });
@@ -109,8 +106,6 @@ class RedisClient {
         if (err) {
           return reject(err);
         }
-        // wildcard search returns string[] but the interface doesn't know it
-        // so we need to do some ugly typecasting
         resolve(reply);
       });
     });
