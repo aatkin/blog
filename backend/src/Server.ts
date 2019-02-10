@@ -5,7 +5,10 @@ import * as bodyParser from "body-parser";
 import { Types } from "src/Types";
 import { ValidationException } from "src/exceptions/ValidationException";
 import { ILoggerService } from "src/services/LoggerService";
-import { IAuthenticationController, AuthenticationCredentials } from "src/controllers/AuthenticationController";
+import {
+  IAuthenticationController,
+  AuthenticationCredentials
+} from "src/controllers/AuthenticationController";
 import { IApiRoute } from "src/routes/Api";
 
 /**
@@ -56,13 +59,17 @@ export class Server {
     this.app.use(bodyParser.json());
 
     // use passport authentication
-    const authenticationController = this.container.get<IAuthenticationController>(Types.AuthenticationController);
+    const authenticationController = this.container.get<IAuthenticationController>(
+      Types.AuthenticationController
+    );
     this.app.use(authenticationController.initialize());
   }
 
   private routes(): void {
     const apiRoute = this.container.get<IApiRoute>(Types.ApiRoute);
-    const authenticationController = this.container.get<IAuthenticationController>(Types.AuthenticationController);
+    const authenticationController = this.container.get<IAuthenticationController>(
+      Types.AuthenticationController
+    );
 
     // routes
     this.app.use(
@@ -79,7 +86,11 @@ export class Server {
     this.app.use(this.handleError.bind(this));
   }
 
-  private async logRequest(req: express.Request, res: express.Response, next: express.NextFunction) {
+  private async logRequest(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     const logger = this.container.get<ILoggerService>(Types.Logger);
     logger.debug(`${req.method}: ${req.originalUrl} - ${req.body}`);
     next();
@@ -92,7 +103,9 @@ export class Server {
         password: req.body.password
       };
 
-      const authenticationService = this.container.get<IAuthenticationController>(Types.AuthenticationController);
+      const authenticationService = this.container.get<IAuthenticationController>(
+        Types.AuthenticationController
+      );
       const token = await authenticationService.getTokenAsync(credentials);
 
       if (token !== null) {
@@ -106,7 +119,12 @@ export class Server {
     }
   }
 
-  private async handleError(err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
+  private async handleError(
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     const logger = this.container.get<ILoggerService>(Types.Logger);
     logger.error(err);
 

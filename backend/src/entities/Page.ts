@@ -1,4 +1,13 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, VersionColumn, Index, ManyToOne } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  VersionColumn,
+  Index,
+  ManyToOne
+} from "typeorm";
 
 import { ContentNode } from "src/models/ContentNode";
 import { PageMetadata } from "src/models/PageMetadata";
@@ -31,7 +40,14 @@ export class Page {
   @VersionColumn()
   public version: number;
 
-  constructor(guid: string, title: string, owner: Actor, createdDate: Date, version: number, updateDate?: Date) {
+  constructor(
+    guid: string,
+    title: string,
+    owner: Actor,
+    createdDate: Date,
+    version: number,
+    updateDate?: Date
+  ) {
     this.guid = guid;
     this.owner = owner;
     this.content = [];

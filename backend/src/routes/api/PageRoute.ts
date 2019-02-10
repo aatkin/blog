@@ -17,7 +17,10 @@ export interface IPageRoute {
 export class PageRoute implements IPageRoute {
   public router: express.Router;
 
-  constructor(@inject(Types.PageController) private pageController: IPageController, @inject(Types.Logger) private logger: ILoggerService) {
+  constructor(
+    @inject(Types.PageController) private pageController: IPageController,
+    @inject(Types.Logger) private logger: ILoggerService
+  ) {
     this.router = express.Router();
     this.attachRoutes();
   }
@@ -25,19 +28,39 @@ export class PageRoute implements IPageRoute {
   public getRouteInformation(): any {
     return {
       route: "page",
-      routes: [{ method: "GET", route: "/" }, { method: "GET", route: "/:userGuid" }, { method: "POST", route: "/", params: "page" }]
+      routes: [
+        { method: "GET", route: "/" },
+        { method: "GET", route: "/:userGuid" },
+        { method: "POST", route: "/", params: "page" }
+      ]
     };
   }
 
   private attachRoutes(): void {
     this.router.get("/debug", this.getAllPagesAsync.bind(this) as express.RequestHandler);
     this.router.get("/all", this.getAllUserPagesAsync.bind(this) as express.RequestHandler);
-    this.router.post("/", this.validateBody as express.RequestHandler, this.getPageAsync.bind(this) as express.RequestHandler);
-    this.router.post("/update", this.validateBody as express.RequestHandler, this.updatePageAsync.bind(this) as express.RequestHandler);
-    this.router.post("/create", this.validateBody as express.RequestHandler, this.createPage.bind(this) as express.RequestHandler);
+    this.router.post(
+      "/",
+      this.validateBody as express.RequestHandler,
+      this.getPageAsync.bind(this) as express.RequestHandler
+    );
+    this.router.post(
+      "/update",
+      this.validateBody as express.RequestHandler,
+      this.updatePageAsync.bind(this) as express.RequestHandler
+    );
+    this.router.post(
+      "/create",
+      this.validateBody as express.RequestHandler,
+      this.createPage.bind(this) as express.RequestHandler
+    );
   }
 
-  private validateBody(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) {
+  private validateBody(
+    req: AuthenticatedRequest,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     if (!req.body) {
       return res.status(400).json({ error: "Request body is null or undefined" });
     }
@@ -48,7 +71,11 @@ export class PageRoute implements IPageRoute {
     next();
   }
 
-  private async getAllPagesAsync(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) {
+  private async getAllPagesAsync(
+    req: AuthenticatedRequest,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     try {
       // TODO: require correct role
       const pages = await this.pageController.getPagesAsync();
@@ -58,7 +85,11 @@ export class PageRoute implements IPageRoute {
     }
   }
 
-  private async getAllUserPagesAsync(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) {
+  private async getAllUserPagesAsync(
+    req: AuthenticatedRequest,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     try {
       // TODO: require correct role
       const actorGuid = req.authenticatedActor.guid;
@@ -69,7 +100,11 @@ export class PageRoute implements IPageRoute {
     }
   }
 
-  private async getPageAsync(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) {
+  private async getPageAsync(
+    req: AuthenticatedRequest,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     // TODO: require correct role
 
     const { title, guid } = req.body.page as PageQueryParams;
@@ -92,7 +127,11 @@ export class PageRoute implements IPageRoute {
     }
   }
 
-  private async updatePageAsync(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) {
+  private async updatePageAsync(
+    req: AuthenticatedRequest,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     type Params = PageUpdateParams & { guid: string };
     const { guid, content, metadata, ownerGuid, title } = req.body.page as Params;
 
@@ -109,7 +148,11 @@ export class PageRoute implements IPageRoute {
     }
   }
 
-  private async createPage(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) {
+  private async createPage(
+    req: AuthenticatedRequest,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     // TODO: validate actor role
 
     const { title } = req.body.page as PageCreateParams;

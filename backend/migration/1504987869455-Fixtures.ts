@@ -20,7 +20,13 @@ const adminUser = new UserIdentity(
 
 const adminActor = new Actor(uuid(), "Administrator", [adminRole], adminUser);
 
-const defaultPage = new Page(uuid(), "Front page express 2000. Testailen tässä JWT-tokenin toimintaa.", adminActor, new Date(), 0);
+const defaultPage = new Page(
+  uuid(),
+  "Front page express 2000. Testailen tässä JWT-tokenin toimintaa.",
+  adminActor,
+  new Date(),
+  0
+);
 
 export class Fixtures1504987869455 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {

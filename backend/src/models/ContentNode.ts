@@ -11,7 +11,12 @@ export class ContentNode {
   public parentNode: ContentNode;
   public childNodes: ContentNode[];
 
-  constructor(contentType: ContentType, content: any, parentNode: ContentNode, childNodes: ContentNode[]) {
+  constructor(
+    contentType: ContentType,
+    content: any,
+    parentNode: ContentNode,
+    childNodes: ContentNode[]
+  ) {
     this.contentType = contentType;
     this.content = content;
     this.parentNode = parentNode;
@@ -51,7 +56,9 @@ const ContentNodeController = {
     }
   },
 
-  mapContent(node: ContentNode): ContainerNodeContent | ImageNodeContent | LinkNodeContent | TextNodeContent {
+  mapContent(
+    node: ContentNode
+  ): ContainerNodeContent | ImageNodeContent | LinkNodeContent | TextNodeContent {
     switch (node.contentType) {
       case ContentType.Text:
         return TextNode.mapContent(node);

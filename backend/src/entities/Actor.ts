@@ -1,4 +1,13 @@
-import { Entity, Column, PrimaryColumn, OneToOne, OneToMany, ManyToMany, JoinTable, Index } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  OneToOne,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+  Index
+} from "typeorm";
 
 import { Role } from "src/entities/Role";
 import { Page } from "src/entities/Page";

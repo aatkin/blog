@@ -26,7 +26,11 @@ export interface IAuthenticationController {
   initialize(): express.Handler;
   authenticate(): express.Handler;
   getTokenAsync(credentials: AuthenticationCredentials): Promise<string>;
-  extractUserFromRequestFunction(): (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) => Promise<void>;
+  extractUserFromRequestFunction(): (
+    req: AuthenticatedRequest,
+    res: express.Response,
+    next: express.NextFunction
+  ) => Promise<void>;
 }
 
 @injectable()
@@ -83,7 +87,11 @@ export class AuthenticationController implements IAuthenticationController {
     });
   }
 
-  public extractUserFromRequestFunction(): (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) => Promise<void> {
+  public extractUserFromRequestFunction(): (
+    req: AuthenticatedRequest,
+    res: express.Response,
+    next: express.NextFunction
+  ) => Promise<void> {
     return async (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) => {
       const token = ExtractJwt.fromAuthHeaderWithScheme("Bearer")(req);
       const { guid } = jwt.decode(token, this.config.get("authentication.jwtSecret"));
@@ -109,7 +117,7 @@ export class AuthenticationController implements IAuthenticationController {
         await this.addTokenToAuthenticationCache(cacheKey, Time.DAY_MS);
         return token;
       }
-    } catch(e) {
+    } catch (e) {
       this.logger.error(e);
       return null;
     }
@@ -126,7 +134,9 @@ export class AuthenticationController implements IAuthenticationController {
       keys.forEach(async key => {
         const value = await this.databaseService.redis.getKey(key);
         const expiration = await this.databaseService.redis.getTTL(key);
-        this.logger.debug(`Populating auth cache from redis: ${key}: ${value}, expiration: ${expiration}`);
+        this.logger.debug(
+          `Populating auth cache from redis: ${key}: ${value}, expiration: ${expiration}`
+        );
         this.authenticationCache.set(key, value, expiration);
       });
     }

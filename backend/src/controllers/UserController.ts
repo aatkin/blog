@@ -5,7 +5,12 @@ import * as bcrypt from "bcrypt";
 import { Types } from "src/Types";
 import { IDatabaseService } from "src/services/DatabaseService";
 import { ILoggerService } from "src/services/LoggerService";
-import { UserIdentity, UserIdentityUpdateParams, UserIdentityCreateParams, UserIdentityQueryParams } from "src/entities/UserIdentity";
+import {
+  UserIdentity,
+  UserIdentityUpdateParams,
+  UserIdentityCreateParams,
+  UserIdentityQueryParams
+} from "src/entities/UserIdentity";
 import { Role } from "src/entities/Role";
 import { Actor, ActorQueryParams } from "src/entities/Actor";
 import { DatabaseException } from "src/exceptions/DatabaseException";
@@ -121,7 +126,10 @@ export class UserController implements IUserController {
     }
   }
 
-  public async updateUserAsync(userGuid: string, userParams: UserIdentityUpdateParams): Promise<UserIdentity> {
+  public async updateUserAsync(
+    userGuid: string,
+    userParams: UserIdentityUpdateParams
+  ): Promise<UserIdentity> {
     try {
       if (userGuid == null) {
         throw new ValidationException(ValidationError.BadUserGuidError);

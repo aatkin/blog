@@ -20,7 +20,10 @@ export interface IUserRoute {
 export class UserRoute implements IUserRoute {
   public router: express.Router;
 
-  constructor(@inject(Types.UserController) private userController: IUserController, @inject(Types.Logger) private logger: ILoggerService) {
+  constructor(
+    @inject(Types.UserController) private userController: IUserController,
+    @inject(Types.Logger) private logger: ILoggerService
+  ) {
     this.router = express.Router();
     this.attachRoutes();
   }
@@ -56,7 +59,11 @@ export class UserRoute implements IUserRoute {
     next();
   }
 
-  private async getAllActors(req: express.Request, res: express.Response, next: express.NextFunction) {
+  private async getAllActors(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     try {
       const actors = await this.userController.getActorsAsync();
       res.json({ actors });
@@ -65,7 +72,11 @@ export class UserRoute implements IUserRoute {
     }
   }
 
-  private async getUser(req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) {
+  private async getUser(
+    req: AuthenticatedRequest,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     try {
       const authenticatedUser = req.authenticatedUser;
       const user = pick(["name", "actor"], authenticatedUser);
@@ -90,7 +101,11 @@ export class UserRoute implements IUserRoute {
     }
   }
 
-  private async updateUser(req: express.Request, res: express.Response, next: express.NextFunction) {
+  private async updateUser(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     const { guid, name, role } = req.body.user as UserIdentityUpdateParams;
 
     if (guid == null) {
@@ -121,7 +136,11 @@ export class UserRoute implements IUserRoute {
     }
   }
 
-  private async createUser(req: express.Request, res: express.Response, next: express.NextFunction) {
+  private async createUser(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
     res.json({ msg: "route: POST /api/user/create" });
   }
 }

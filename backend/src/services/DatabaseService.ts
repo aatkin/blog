@@ -14,8 +14,12 @@ export interface IDatabaseService {
 
 @injectable()
 export class DatabaseService implements IDatabaseService {
-  public get redis() { return this._redis; }
-  public get connection() { return this._connection; }
+  public get redis() {
+    return this._redis;
+  }
+  public get connection() {
+    return this._connection;
+  }
 
   private _redis: RedisClient;
   private _connection: Connection | null = null;
@@ -31,7 +35,7 @@ export class DatabaseService implements IDatabaseService {
 
       const client = await this.createRedisClient();
       this._redis = new RedisClient(client);
-      this.logger.debug("Connected to Redis!")
+      this.logger.debug("Connected to Redis!");
 
       if (config.get<boolean>("database.migrations")) {
         this.logger.debug("Running migrations");
@@ -54,8 +58,8 @@ export class DatabaseService implements IDatabaseService {
       });
       client.on("error", () => {
         reject();
-      })
-    })
+      });
+    });
   }
 }
 
@@ -70,7 +74,7 @@ class RedisClient {
         }
         resolve();
       });
-    })
+    });
   }
 
   public async getKeys() {
@@ -81,9 +85,9 @@ class RedisClient {
         }
         // wildcard search returns string[] but the interface doesn't know it
         // so we need to do some ugly typecasting
-        resolve(reply as unknown as string[]);
+        resolve((reply as unknown) as string[]);
       });
-    })
+    });
   }
 
   public async getKey(key: string) {
@@ -96,7 +100,7 @@ class RedisClient {
         // so we need to do some ugly typecasting
         resolve(reply);
       });
-    })
+    });
   }
 
   public async getTTL(key: string) {
@@ -109,6 +113,6 @@ class RedisClient {
         // so we need to do some ugly typecasting
         resolve(reply);
       });
-    })
+    });
   }
 }

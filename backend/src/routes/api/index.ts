@@ -13,7 +13,10 @@ export interface IApiRoute {
 export class ApiRoute {
   public router: express.Router;
 
-  constructor(@inject(Types.UserRoute) private userRoute: IUserRoute, @inject(Types.PageRoute) private pageRoute: IPageRoute) {
+  constructor(
+    @inject(Types.UserRoute) private userRoute: IUserRoute,
+    @inject(Types.PageRoute) private pageRoute: IPageRoute
+  ) {
     this.router = express.Router();
     this.attachRoutes();
   }

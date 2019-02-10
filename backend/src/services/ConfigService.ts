@@ -12,4 +12,10 @@ export class ConfigService {
   }
 }
 
-type ConfigKey = "logger.level" | "logger.filepath" | "authentication.jwtSecret" | "authentication.jwtSession" | "authentication.cacheKey" | "database.migrations"
+type ConfigKey =
+  | "logger.level"
+  | "logger.filepath"
+  | "authentication.jwtSecret"
+  | "authentication.jwtSession"
+  | "authentication.cacheKey"
+  | "database.migrations";
