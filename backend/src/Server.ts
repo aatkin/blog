@@ -11,6 +11,7 @@ import {
   AuthenticationCredentials
 } from "src/controllers/AuthenticationController";
 import { IApiRoute } from "src/routes/Api";
+import { InternalServerException } from "./exceptions/InternalServerException";
 
 /**
  * Back-end server class
@@ -127,7 +128,7 @@ export class Server {
     next: express.NextFunction
   ) {
     const logger = this.container.get<ILoggerService>(Types.Logger);
-    logger.error(err);
+    logger.logException(err);
 
     if (err instanceof ValidationException) {
       return res.status(400).json({ error: err.message });
@@ -135,10 +136,9 @@ export class Server {
     if (err instanceof NotAuthorizedException) {
       return res.status(401).json({ error: err.message });
     }
-    // handle prod errors as well
-    res.status(500).json({
-      message: err.message,
-      error: err
+
+    return res.status(500).json({
+      message: err.message || "Internal server error"
     });
   }
 }

@@ -1,9 +1,9 @@
 import { injectable } from "inversify";
 import * as path from "path";
 import { createLogger, Logger, transports, format } from "winston";
-
 import * as config from "config";
-// import * as chalk from "chalk";
+
+import { Exception } from "src/exceptions/Exception";
 
 export interface ILoggerService {
   error(message: string): void;
@@ -12,6 +12,7 @@ export interface ILoggerService {
   verbose(message: string): void;
   debug(message: string): void;
   silly(message: string): void;
+  logException(e: Error): void;
 }
 
 @injectable()
@@ -54,5 +55,14 @@ export class LoggerService implements ILoggerService {
   }
   public silly(message: string) {
     this._logger.silly(message);
+  }
+
+  public logException<T extends Exception | Error>(e: T) {
+    if (e instanceof Exception) {
+      const formattedStack = e.stackTrace.join("\n----------\n");
+      this._logger.error(e.name + ": " + e.message + "\n" + formattedStack);
+    } else {
+      this._logger.error(e.name + ": " + e.message + "\n" + e.stack);
+    }
   }
 }

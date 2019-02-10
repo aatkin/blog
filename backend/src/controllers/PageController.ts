@@ -6,6 +6,7 @@ import { DatabaseException } from "src/exceptions/DatabaseException";
 import { PageNotFoundException } from "src/exceptions/PageNotFoundException";
 import { NotAuthorizedException } from "src/exceptions/NotAuthorizedException";
 import { InternalServerException } from "src/exceptions/InternalServerException";
+import { ActorNotFoundException } from "src/exceptions/ActorNotFoundException";
 import { DatabaseError } from "src/constants/Errors";
 import { IDatabaseService } from "src/services/DatabaseService";
 import { ILoggerService } from "src/services/LoggerService";
@@ -140,7 +141,12 @@ export class PageController implements IPageController {
       await pageRepository.save(page);
       return page;
     } catch (e) {
-      if (e instanceof DatabaseException || e instanceof NotAuthorizedException) {
+      if (
+        e instanceof DatabaseException ||
+        e instanceof NotAuthorizedException ||
+        e instanceof InternalServerException ||
+        e instanceof ActorNotFoundException
+      ) {
         throw e;
       } else {
         throw InternalServerException.fromError(e);

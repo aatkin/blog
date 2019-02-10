@@ -124,12 +124,16 @@ export class PageRoute implements IPageRoute {
     const { guid, content, metadata, ownerGuid, title } = req.body.page as Params;
 
     try {
-      const page = await this.pageController.updatePageAsync(guid, {
-        content,
-        metadata,
-        title,
-        ownerGuid
-      });
+      const page = await this.pageController.updatePageAsync(
+        guid,
+        {
+          content,
+          metadata,
+          title,
+          ownerGuid
+        },
+        req.authenticatedActor
+      );
       return res.json({ page });
     } catch (e) {
       next(e);
