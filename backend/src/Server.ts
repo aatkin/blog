@@ -55,10 +55,10 @@ export class Server {
       next();
     });
 
-    // log all requests
-    this.app.use(this.logRequest.bind(this));
     // parse body from requests
     this.app.use(bodyParser.json());
+    // log all requests
+    this.app.use(this.logRequest.bind(this));
 
     // use passport authentication
     const authenticationController = this.container.get<IAuthenticationController>(
