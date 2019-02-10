@@ -27,7 +27,7 @@ export class LoggerService implements ILoggerService {
       transports: [
         new transports.Console({
           level: "debug",
-          format: format.combine(format.colorize(), format.simple()),
+          format: format.combine(format.colorize(), format.simple())
         }),
         new transports.File({
           level: logLevel,

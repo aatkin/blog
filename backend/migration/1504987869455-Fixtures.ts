@@ -11,7 +11,12 @@ const adminRole = new Role(uuid(), "Admin", "ADMIN");
 
 const defaultRole = new Role("000000-e559-4273-a831-a23009effb7c", "User", "USER");
 
-const adminUser = new UserIdentity('000000-e123-4273-a456-a23009effb7c', "Administrator", bcrypt.hashSync("admin123", bcrypt.genSaltSync()), true);
+const adminUser = new UserIdentity(
+  "000000-e123-4273-a456-a23009effb7c",
+  "Administrator",
+  bcrypt.hashSync("admin123", bcrypt.genSaltSync()),
+  true
+);
 
 const adminActor = new Actor(uuid(), "Administrator", [adminRole], adminUser);
 

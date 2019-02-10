@@ -7,10 +7,12 @@
   },
   "dependencies": {
     "ramda": "^0.26.1",
+    "redis": "^2.8.0",
     "typescript": "^2.8.1"
   },
   "devDependencies": {
     "@types/ramda": "^0.25.48",
+    "@types/redis": "^2.8.10",
     "prettier": "^1.16.4",
     "tslint-config-prettier": "^1.18.0"
   }

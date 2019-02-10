@@ -9,6 +9,14 @@ services:
     #         - blog-static:/var/www/blog
     #         - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     #     restart: always
+    redis:
+        image: redis:5
+        ports:
+            - 6379:6379
+        command: redis-server
+        restart: on-failure
+        volumes:
+            - blog-redis:/data
 
     postgres:
         image: postgres:9.6.5
@@ -23,4 +31,5 @@ services:
             POSTGRES_DB: blog
 volumes:
     # blog-static:
+    blog-redis:
     blog-db:

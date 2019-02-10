@@ -4,11 +4,13 @@ import * as passport from "passport";
 import * as bcrypt from "bcrypt";
 import { ExtractJwt, Strategy, StrategyOptions } from "passport-jwt";
 import * as jwt from "jwt-simple";
-import * as config from "config";
+import * as NodeCache from "node-cache";
+import * as uuid from "uuid/v4";
 
 import { Types } from "src/Types";
 import { IDatabaseService } from "src/services/DatabaseService";
 import { ILoggerService } from "src/services/LoggerService";
+import { IConfigService } from "src/services/ConfigService";
 import { IUserController } from "src/controllers/UserController";
 import { UserIdentity } from "src/entities/UserIdentity";
 import { Actor } from "src/entities/Actor";
@@ -29,18 +31,29 @@ export interface IAuthenticationController {
 
 @injectable()
 export class AuthenticationController implements IAuthenticationController {
+  private authenticationCache: NodeCache;
+
   constructor(
     @inject(Types.DatabaseService)
     private databaseService: IDatabaseService,
     @inject(Types.UserController) private userController: IUserController,
-    @inject(Types.Logger) private logger: ILoggerService
+    @inject(Types.Logger) private logger: ILoggerService,
+    @inject(Types.ConfigService) private config: IConfigService
   ) {
     const params: StrategyOptions = {
       secretOrKey: config.get("authentication.jwtSecret"),
-      jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("Bearer")
+      jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("Bearer"),
+      ignoreExpiration: true
     };
 
-    const strategy = new Strategy(params, async (payload, done) => {
+    const strategy = new Strategy(params, async (payload: JWTToken, done) => {
+      const cacheKey = this.getCacheKeyFromJWTToken(payload);
+      if (!this.authenticationCache.get(cacheKey)) {
+        this.logger.debug("Authentication token expired");
+        return done("Authentication token expired", null);
+      }
+      this.logger.debug("Found token from authentication cache");
+
       const user = await this.userController.getUserAsync({
         guid: payload.guid
       });
@@ -55,6 +68,9 @@ export class AuthenticationController implements IAuthenticationController {
     });
 
     passport.use(strategy);
+
+    this.authenticationCache = new NodeCache();
+    this.populateAuthenticationCache();
   }
 
   public initialize() {
@@ -63,14 +79,14 @@ export class AuthenticationController implements IAuthenticationController {
 
   public authenticate() {
     return passport.authenticate("jwt", {
-      session: config.get<boolean>("authentication.jwtSession")
+      session: this.config.get<boolean>("authentication.jwtSession")
     });
   }
 
   public extractUserFromRequestFunction(): (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) => Promise<void> {
     return async (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) => {
       const token = ExtractJwt.fromAuthHeaderWithScheme("Bearer")(req);
-      const { guid } = jwt.decode(token, config.get<string>("authentication.jwtSecret"));
+      const { guid } = jwt.decode(token, this.config.get("authentication.jwtSecret"));
       const user = await this.userController.getUserAsync({ guid });
       // add authenticated user to the request object for subsequent validation
       req.authenticatedUser = user;
@@ -80,19 +96,46 @@ export class AuthenticationController implements IAuthenticationController {
   }
 
   public async getTokenAsync(credentials: AuthenticationCredentials): Promise<string> {
-    const user = await this.userController.getUserAsync({
-      name: credentials.userName
-    });
+    try {
+      const user = await this.userController.getUserAsync({
+        name: credentials.userName
+      });
 
-    if (user != null && (await bcrypt.compare(credentials.password, user.passwordHash))) {
-      // jwt expiration token is recognized by passport-jwt
-      const expiration = Date.now() + Time.DAY_MS;
-      const payload = { guid: user.guid, exp: expiration };
-      const token = jwt.encode(payload, config.get("authentication.jwtSecret"));
-      return token;
+      if (user != null && (await bcrypt.compare(credentials.password, user.passwordHash))) {
+        // jwt expiration token is recognized by passport-jwt
+        const payload: JWTToken = { guid: user.guid };
+        const token = jwt.encode(payload, this.config.get("authentication.jwtSecret"));
+        const cacheKey = this.getCacheKeyFromJWTToken(payload);
+        await this.addTokenToAuthenticationCache(cacheKey, Time.DAY_MS);
+        return token;
+      }
+    } catch(e) {
+      this.logger.error(e);
+      return null;
     }
+  }
 
-    return null;
+  public getCacheKeyFromJWTToken(payload: JWTToken): string {
+    return this.config.get("authentication.cacheKey") + "-" + payload.guid;
+  }
+
+  private async populateAuthenticationCache() {
+    const keys = await this.databaseService.redis.getKeys();
+    this.authenticationCache.flushAll();
+    if (keys) {
+      keys.forEach(async key => {
+        const value = await this.databaseService.redis.getKey(key);
+        const expiration = await this.databaseService.redis.getTTL(key);
+        this.logger.debug(`Populating auth cache from redis: ${key}: ${value}, expiration: ${expiration}`);
+        this.authenticationCache.set(key, value, expiration);
+      });
+    }
+  }
+
+  private async addTokenToAuthenticationCache(token: string, expiration: number) {
+    this.logger.debug(`Setting token to auth cache: ${token}, expiration: ${expiration}`);
+    await this.databaseService.redis.set(token, String(expiration), expiration);
+    this.authenticationCache.set(token, expiration, expiration);
   }
 }
 
@@ -100,3 +143,7 @@ export type AuthenticatedRequest = express.Request & {
   authenticatedUser: UserIdentity;
   authenticatedActor: Actor;
 };
+
+interface JWTToken {
+  guid: string;
+}

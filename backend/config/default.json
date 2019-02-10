@@ -6,7 +6,8 @@
 
     "authentication": {
         "jwtSecret": "blogsecret123",
-        "jwtSession": false
+        "jwtSession": false,
+        "cacheKey": "authenticationCache"
     },
 
     "database": {

@@ -1,5 +1,7 @@
 tabWidth: 2
+useTabs: false
 semi: true
 endOfLine: "lf"
 printWidth: 140
 bracketSpacing: true
+singleQuote: false

@@ -13,7 +13,8 @@ const Types = {
 
   // main
   DatabaseService: Symbol("DatabaseService"),
-  AuthenticationController: Symbol("AuthenticationController")
+  AuthenticationController: Symbol("AuthenticationController"),
+  ConfigService: Symbol("ConfigService")
 };
 
 export { Types };

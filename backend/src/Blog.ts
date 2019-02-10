@@ -18,8 +18,8 @@ async function startup() {
   try {
     logger.info("Starting back-end");
 
-    // establish db connection
-    connection = await databaseService.createConnection();
+    // establish db connection and redis connection
+    connection = await databaseService.createConnections();
 
     const application = Server.bootstrap(container);
     application.start(4730, () => {

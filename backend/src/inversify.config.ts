@@ -8,6 +8,7 @@ import { IUserRoute, UserRoute } from "src/routes/api/UserRoute";
 import { IPageRoute, PageRoute } from "src/routes/api/PageRoute";
 import { ILoggerService, LoggerService } from "src/services/LoggerService";
 import { IDatabaseService, DatabaseService } from "src/services/DatabaseService";
+import { IConfigService, ConfigService } from "src/services/ConfigService";
 
 import { Types } from "src/Types";
 
@@ -21,6 +22,10 @@ container
 container
   .bind<IDatabaseService>(Types.DatabaseService)
   .to(DatabaseService)
+  .inSingletonScope();
+container
+  .bind<IConfigService>(Types.ConfigService)
+  .to(ConfigService)
   .inSingletonScope();
 container
   .bind<IAuthenticationController>(Types.AuthenticationController)
