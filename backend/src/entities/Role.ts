@@ -14,13 +14,14 @@ export class Role {
   @Column()
   public value: string;
 
-  @ManyToMany(type => Actor, actor => actor.roles)
-  public actors: Actor[];
+  @ManyToMany(_type => Actor, actor => actor.roles)
+  public actors: Actor[] | undefined;
 
-  constructor(guid: string, name: string, value: string) {
+  constructor(guid: string, name: string, value: string, actors?: Actor[]) {
     this.guid = guid;
     this.name = name;
     this.value = value;
+    this.actors = actors;
   }
 }
 

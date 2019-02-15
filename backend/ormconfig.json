@@ -16,6 +16,13 @@
         "cli": {
             "migrationsDir": "./migration"
         },
-        "logging": true
+        "logging": true,
+        "cache": {
+          "type": "redis",
+          "options": {
+            "host": "localhost",
+            "port": 6379
+          }
+        }
     }
 ]

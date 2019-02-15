@@ -18,7 +18,12 @@ const adminUser = new UserIdentity(
   true
 );
 
-const adminActor = new Actor(uuid(), "Administrator", [adminRole], adminUser);
+const adminActor = new Actor(
+  "4df16fbc-1936-4530-9826-6725299c87e6",
+  "Administrator",
+  [adminRole],
+  adminUser
+);
 
 const defaultPage = new Page(
   "cd38fb6b-38c9-4f29-9e6a-90a6372f04a2",

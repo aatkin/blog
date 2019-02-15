@@ -15,7 +15,7 @@ export class UserIdentity {
   @Column()
   public passwordHash: string;
 
-  @OneToOne<Actor>(t => Actor, actor => actor.user, { cascade: true })
+  @OneToOne<Actor>(_type => Actor, actor => actor.user, { cascade: true })
   @JoinColumn()
   public actor: Actor | undefined;
 

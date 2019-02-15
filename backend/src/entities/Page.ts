@@ -28,7 +28,7 @@ export class Page {
   @Column({ type: "jsonb" })
   public metadata: PageMetadata;
 
-  @ManyToOne(t => Actor, actor => actor.pages)
+  @ManyToOne(_type => Actor, actor => actor.pages)
   public owner: Actor;
 
   @CreateDateColumn()

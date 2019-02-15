@@ -10,8 +10,7 @@ import {
   IAuthenticationController,
   AuthenticationCredentials
 } from "src/controllers/AuthenticationController";
-import { IApiRoute } from "src/routes/Api";
-import { InternalServerException } from "./exceptions/InternalServerException";
+import { IApiRoute } from "src/routes/api";
 
 /**
  * Back-end server class
@@ -28,7 +27,7 @@ export class Server {
   public app: express.Application;
 
   constructor(
-    private container: Container | null,
+    private container: Container,
     app?: express.Application,
     config?: (app: express.Application) => void,
     routes?: (app: express.Application) => void
@@ -49,7 +48,7 @@ export class Server {
   }
 
   private config(): void {
-    this.app.use((req, res, next) => {
+    this.app.use((_req, res, next) => {
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
       next();
@@ -75,9 +74,10 @@ export class Server {
 
     // routes
     this.app.use(
+      // @ts-ignore
       "/api",
       authenticationController.authenticate(),
-      authenticationController.extractUserFromRequestFunction() as express.RequestHandler,
+      authenticationController.extractUserFromRequestFunction(),
       apiRoute.router
     );
 
@@ -90,11 +90,11 @@ export class Server {
 
   private async logRequest(
     req: express.Request,
-    res: express.Response,
+    _res: express.Response,
     next: express.NextFunction
   ) {
     const logger = this.container.get<ILoggerService>(Types.Logger);
-    logger.debug(`${req.method}: ${req.originalUrl} - ${req.body}`);
+    logger.debug(`${req.method}: ${req.originalUrl} - ${JSON.stringify(req.body)}`);
     next();
   }
 
@@ -108,7 +108,7 @@ export class Server {
       const authenticationService = this.container.get<IAuthenticationController>(
         Types.AuthenticationController
       );
-      const token = await authenticationService.getTokenAsync(credentials);
+      const token = await authenticationService.createTokenAsync(credentials);
 
       if (token !== null) {
         // authentication ok
@@ -123,9 +123,9 @@ export class Server {
 
   private async handleError(
     err: any,
-    req: express.Request,
+    _req: express.Request,
     res: express.Response,
-    next: express.NextFunction
+    _next: express.NextFunction
   ) {
     const logger = this.container.get<ILoggerService>(Types.Logger);
     logger.logException(err);

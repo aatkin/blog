@@ -4,7 +4,6 @@ import * as express from "express";
 import { Types } from "src/Types";
 import { IPageController } from "src/controllers/PageController";
 import { AuthenticatedRequest } from "src/controllers/AuthenticationController";
-import { ILoggerService } from "src/services/LoggerService";
 import { ValidationError } from "src/constants/Errors";
 import { PageQueryParams, PageCreateParams, PageUpdateParams } from "src/entities/Page";
 
@@ -16,10 +15,7 @@ export interface IPageRoute {
 export class PageRoute implements IPageRoute {
   public router: express.Router;
 
-  constructor(
-    @inject(Types.PageController) private pageController: IPageController,
-    @inject(Types.Logger) private logger: ILoggerService
-  ) {
+  constructor(@inject(Types.PageController) private pageController: IPageController) {
     this.router = express.Router();
     this.attachRoutes();
   }
@@ -60,7 +56,7 @@ export class PageRoute implements IPageRoute {
   }
 
   private async getAllPagesAsync(
-    req: AuthenticatedRequest,
+    _req: AuthenticatedRequest,
     res: express.Response,
     next: express.NextFunction
   ) {

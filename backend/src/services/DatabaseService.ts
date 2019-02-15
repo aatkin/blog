@@ -5,11 +5,13 @@ import * as config from "config";
 
 import { Types } from "src/Types";
 import { ILoggerService } from "src/services/LoggerService";
+import { Time } from "src/constants/Time";
 
 export interface IDatabaseService {
   redis: RedisClient;
   connection: Connection;
   createConnections(): Promise<Connection>;
+  clearCacheFor(keys: string[]): Promise<void>;
 }
 
 @injectable()
@@ -21,7 +23,9 @@ export class DatabaseService implements IDatabaseService {
     return this._connection;
   }
 
+  // @ts-ignore
   private _redis: RedisClient;
+  // @ts-ignore
   private _connection: Connection;
 
   constructor(@inject(Types.Logger) private logger: ILoggerService) {}
@@ -47,6 +51,14 @@ export class DatabaseService implements IDatabaseService {
     } catch (e) {
       this.logger.error(`Error trying to connect to database: ${String(e)}`);
       throw e;
+    }
+  }
+
+  public async clearCacheFor(keys: string[]) {
+    const queryResultCache = this._connection.queryResultCache;
+    if (queryResultCache) {
+      this.logger.debug(`Clearing typeorm cache for keys ${JSON.stringify(keys)}`);
+      await queryResultCache.remove(keys);
     }
   }
 
@@ -103,6 +115,17 @@ class RedisClient {
   public async getTTL(key: string) {
     return new Promise<number>((resolve, reject) => {
       this.client.ttl(key, (err, reply) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(reply);
+      });
+    });
+  }
+
+  public async setTTL(key: string, expire: Time = Time.DAY) {
+    return new Promise<number>((resolve, reject) => {
+      this.client.expire(key, expire, (err, reply) => {
         if (err) {
           return reject(err);
         }

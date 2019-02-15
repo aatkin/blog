@@ -29,13 +29,14 @@ export class UserRoute implements IUserRoute {
 
   private attachRoutes(): void {
     this.router.get("/actors", this.getAllActors.bind(this));
+    // @ts-ignore
     this.router.get("/personal", this.getUser.bind(this));
-    this.router.post("/actor", this.validateBody, this.getActor.bind(this));
+    this.router.get("/actor/:guid([a-zA-Z0-9\-^]+)", this.getActor.bind(this));
     this.router.post("/update", this.validateBody, this.updateUser.bind(this));
     this.router.post("/create", this.validateBody, this.createUser.bind(this));
   }
 
-  private validateBody(req: express.Request, res: express.Response, next: express.NextFunction) {
+  private validateBody(req: express.Request, _res: express.Response, next: express.NextFunction) {
     if (!req.body) {
       return next(new ValidationException("Request body is null or undefined"));
     }
@@ -47,7 +48,7 @@ export class UserRoute implements IUserRoute {
   }
 
   private async getAllActors(
-    req: express.Request,
+    _req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
@@ -66,7 +67,7 @@ export class UserRoute implements IUserRoute {
   ) {
     try {
       const authenticatedUser = req.authenticatedUser;
-      const user = pick(["name", "actor"], authenticatedUser);
+      const user = pick(["name", "guid", "actor"], authenticatedUser);
       res.json({ user });
     } catch (e) {
       next(e);
@@ -74,14 +75,15 @@ export class UserRoute implements IUserRoute {
   }
 
   private async getActor(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const { name } = req.body.user as UserIdentityQueryParams;
+    this.logger.debug(JSON.stringify(req.params));
+    const { guid } = req.params as UserIdentityQueryParams;
 
-    if (!name) {
-      return next(new ValidationException("Parameter 'name' is null or undefined"));
+    if (!guid) {
+      return next(new ValidationException("Parameter 'guid' is null or undefined"));
     }
 
     try {
-      const actor = await this.userController.getActorAsync({ name });
+      const actor = await this.userController.getActorAsync({ guid });
       return res.json({ actor });
     } catch (e) {
       next(e);
@@ -124,9 +126,9 @@ export class UserRoute implements IUserRoute {
   }
 
   private async createUser(
-    req: express.Request,
+    _req: express.Request,
     res: express.Response,
-    next: express.NextFunction
+    _next: express.NextFunction
   ) {
     res.json({ msg: "route: POST /api/user/create" });
   }

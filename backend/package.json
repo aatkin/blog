@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/Blog.ts",
-    "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpileOnly src/Blog.ts",
+    "dev": "ts-node-dev -r tsconfig-paths/register --respawn src/Blog.ts",
     "debug": "ts-node-dev -r tsconfig-paths/register --respawn --transpileOnly --inspect-brk -- src/Blog.ts",
     "test": "node node_modules/mocha/bin/mocha",
     "test-watch": "node node_modules/mocha/bin/mocha --watch-extensions ts --watch test/**/*.ts",

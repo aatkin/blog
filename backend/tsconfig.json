@@ -9,12 +9,13 @@
         "removeComments": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        // "strict": true,
-        // "noUnusedLocals": true,
-        // "noUnusedParameters": true,
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
         "baseUrl": "./",
         "rootDir": "./",
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "skipLibCheck": true
     },
     "exclude": [
         "node_modules"

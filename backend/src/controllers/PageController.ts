@@ -9,7 +9,6 @@ import { InternalServerException } from "src/exceptions/InternalServerException"
 import { ActorNotFoundException } from "src/exceptions/ActorNotFoundException";
 import { DatabaseError } from "src/constants/Errors";
 import { IDatabaseService } from "src/services/DatabaseService";
-import { ILoggerService } from "src/services/LoggerService";
 import { IUserController } from "./UserController";
 import { Page, PageQueryParams, PageUpdateParams, PageCreateParams } from "src/entities/Page";
 import { Actor } from "src/entities/Actor";
@@ -27,8 +26,7 @@ export class PageController implements IPageController {
   constructor(
     @inject(Types.DatabaseService)
     private databaseService: IDatabaseService,
-    @inject(Types.UserController) private userController: IUserController,
-    @inject(Types.Logger) private logger: ILoggerService
+    @inject(Types.UserController) private userController: IUserController
   ) {}
 
   public async getPagesAsync(): Promise<Page[]> {

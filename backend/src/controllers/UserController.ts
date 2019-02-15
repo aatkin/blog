@@ -4,7 +4,6 @@ import * as bcrypt from "bcrypt";
 
 import { Types } from "src/Types";
 import { IDatabaseService } from "src/services/DatabaseService";
-import { ILoggerService } from "src/services/LoggerService";
 import {
   UserIdentity,
   UserIdentityUpdateParams,
@@ -20,6 +19,7 @@ import { RoleNotFoundException } from "src/exceptions/RoleNotFoundException";
 import { ValidationException } from "src/exceptions/ValidationException";
 import { InternalServerException } from "src/exceptions/InternalServerException";
 import { ValidationError } from "src/constants/Errors";
+import { Time } from "src/constants/Time";
 
 export interface IUserController {
   getActorsAsync(): Promise<Actor[]>;
@@ -34,8 +34,7 @@ export interface IUserController {
 export class UserController implements IUserController {
   constructor(
     @inject(Types.DatabaseService)
-    private databaseService: IDatabaseService,
-    @inject(Types.Logger) private logger: ILoggerService
+    private databaseService: IDatabaseService
   ) {}
 
   public async getActorsAsync(): Promise<Actor[]> {
@@ -66,6 +65,7 @@ export class UserController implements IUserController {
           .createQueryBuilder("user")
           .where("user.guid = :keyword", { keyword: userParams.guid })
           .innerJoinAndSelect("user.actor", "actor")
+          .cache(`get_user_${userParams.guid}`, Time.DAY_MS)
           .getOne();
       } else {
         user = await userRepository
@@ -74,6 +74,7 @@ export class UserController implements IUserController {
             keyword: userParams.name
           })
           .innerJoinAndSelect("user.actor", "actor")
+          .cache(`get_user_${userParams.name}`, Time.DAY_MS)
           .getOne();
       }
 
@@ -157,6 +158,7 @@ export class UserController implements IUserController {
 
       Object.assign(user, userParams);
       await userRepository.save(user);
+      await this.databaseService.clearCacheFor([`get_user_${user.guid}`, `get_user_${user.name}`]);
       return user;
     } catch (e) {
       if (e instanceof UserNotFoundException || e instanceof ValidationException) {
@@ -232,7 +234,7 @@ export class UserController implements IUserController {
         actorRepository.save(actor);
 
         // update actor-role link
-        if (role.actors.find(a => a.guid === actor!.guid) == null) {
+        if (role.actors && role.actors.find(a => a.guid === actor!.guid) == null) {
           role.actors.push(actor);
           roleRepository.save(role);
         }

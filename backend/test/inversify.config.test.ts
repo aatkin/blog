@@ -6,13 +6,14 @@ import { IAuthenticationController } from "src/controllers/AuthenticationControl
 import { Types } from "src/Types";
 
 @injectable()
-export class MockLogger {
-  public error(...args: any[]) {}
-  public warn(...args: any[]) {}
-  public info(...args: any[]) {}
-  public verbose(...args: any[]) {}
-  public debug(...args: any[]) {}
-  public silly(...args: any[]) {}
+export class MockLogger implements ILoggerService {
+  public error(message: string) {}
+  public warn(message: string) {}
+  public info(message: string) {}
+  public verbose(message: string) {}
+  public debug(message: string) {}
+  public silly(message: string) {}
+  public logException(e: Error) {}
 }
 
 @injectable()

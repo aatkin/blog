@@ -22,23 +22,24 @@ export class Actor {
   @Index()
   public name: string;
 
-  @OneToOne<UserIdentity>(t => UserIdentity, user => user.actor, {
+  @OneToOne<UserIdentity>(_type => UserIdentity, user => user.actor, {
     cascade: ["insert", "update"]
   })
-  public user: UserIdentity;
+  public user: UserIdentity | undefined;
 
-  @ManyToMany<Role>(t => Role, { cascade: ["insert"] })
+  @ManyToMany<Role>(_type => Role, { cascade: ["insert"] })
   @JoinTable()
-  public roles: Role[];
+  public roles: Role[] | undefined;
 
-  @OneToMany<Page>(t => Page, page => page.owner, { cascade: ["insert"] })
-  public pages: Page[];
+  @OneToMany<Page>(_type => Page, page => page.owner, { cascade: ["insert"] })
+  public pages: Page[] | undefined;
 
-  constructor(guid: string, name: string, roles: Role[], user?: UserIdentity) {
+  constructor(guid: string, name: string, roles?: Role[], user?: UserIdentity, pages?: Page[]) {
     this.guid = guid;
     this.name = name;
-    this.user = user!;
+    this.user = user;
     this.roles = roles;
+    this.pages = pages;
   }
 }
 
