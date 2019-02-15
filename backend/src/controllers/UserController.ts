@@ -153,12 +153,17 @@ export class UserController implements IUserController {
         .getOne();
 
       if (user == null) {
-        throw new UserNotFoundException();
+        throw new UserNotFoundException(userGuid);
       }
+
+      // remove old user cache
+      await this.databaseService.clearCacheFor([
+        `get_user_${user.guid}`,
+        `get_user_${user.name}`
+      ]);
 
       Object.assign(user, userParams);
       await userRepository.save(user);
-      await this.databaseService.clearCacheFor([`get_user_${user.guid}`, `get_user_${user.name}`]);
       return user;
     } catch (e) {
       if (e instanceof UserNotFoundException || e instanceof ValidationException) {

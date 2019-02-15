@@ -118,6 +118,7 @@ export class UserRoute implements IUserRoute {
       res.json({ actor });
     } catch (e) {
       if (e instanceof UserNotFoundException) {
+        this.logger.logException(e);
         return res.status(400).send({ error: DatabaseError.UserNotFoundError });
       }
 
