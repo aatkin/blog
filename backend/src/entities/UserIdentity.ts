@@ -5,8 +5,11 @@ import { Actor } from "src/entities/Actor";
 
 @Entity()
 export class UserIdentity {
-  @PrimaryColumn({ length: 36 })
+  @PrimaryColumn({ type: "uuid" })
   public guid: string;
+
+  @Column({ unique: true })
+  public email: string;
 
   @Column()
   @Index()
@@ -22,8 +25,16 @@ export class UserIdentity {
   @Column()
   public isFixture: boolean;
 
-  constructor(guid: string, name: string, passwordHash: string, isFixture: boolean, actor?: Actor) {
+  constructor(
+    guid: string,
+    email: string,
+    name: string,
+    passwordHash: string,
+    isFixture: boolean,
+    actor?: Actor
+  ) {
     this.guid = guid;
+    this.email = email;
     this.name = name;
     this.passwordHash = passwordHash;
     this.isFixture = isFixture;
@@ -33,12 +44,13 @@ export class UserIdentity {
 
 interface UserIdentityQueryParams {
   guid?: string;
-  name?: string;
+  email?: string;
   role?: Role;
 }
 
 interface UserIdentityUpdateParams {
   guid?: string;
+  email?: string;
   name?: string;
   actor?: Actor;
   role?: Role;
@@ -47,6 +59,7 @@ interface UserIdentityUpdateParams {
 
 interface UserIdentityCreateParams {
   name: string;
+  email: string;
   password: string;
   isFixture: boolean;
   actor?: Actor;

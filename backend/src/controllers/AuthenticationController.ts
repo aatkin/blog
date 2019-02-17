@@ -18,7 +18,7 @@ import { Time } from "src/constants/Time";
 import { NotAuthorizedException } from "src/exceptions/NotAuthorizedException";
 
 export interface AuthenticationCredentials {
-  userName: string;
+  email: string;
   password: string;
 }
 
@@ -107,7 +107,7 @@ export class AuthenticationController implements IAuthenticationController {
   public async createTokenAsync(credentials: AuthenticationCredentials): Promise<string | null> {
     try {
       const user = await this.userController.getUserAsync({
-        name: credentials.userName
+        email: credentials.email
       });
 
       if (user != null && (await bcrypt.compare(credentials.password, user.passwordHash))) {
@@ -164,8 +164,7 @@ export class AuthenticationController implements IAuthenticationController {
   }
 
   private async extendTokenTTL(token: string) {
-    this.logger.debug(`Extending TTL for token: ${token}`);
-    await this.databaseService.redis.setTTL(token);
+    await this.databaseService.redis.setTTL(token, Time.DAY);
   }
 }
 

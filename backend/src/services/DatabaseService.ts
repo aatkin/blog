@@ -34,11 +34,13 @@ export class DatabaseService implements IDatabaseService {
     try {
       this._connection = await createConnection();
       this.logger.debug("Connected to database!");
+      await this._connection.dropDatabase();
+      this.logger.debug("Dropped database!");
       await this._connection.synchronize(true);
       this.logger.debug("Synchronized with database!");
 
       const client = await this.createRedisClient();
-      this._redis = new RedisClient(client);
+      this._redis = new RedisClient(client, this.logger);
       this.logger.debug("Connected to Redis!");
 
       if (config.get<boolean>("database.migrations")) {
@@ -77,7 +79,7 @@ export class DatabaseService implements IDatabaseService {
 
 // Async wrapper around node-redis client
 class RedisClient {
-  constructor(private client: redis.RedisClient) {}
+  constructor(private client: redis.RedisClient, private logger: ILoggerService) {}
 
   public async set(key: string, value: string, expire: number) {
     return new Promise((resolve, reject) => {
@@ -123,7 +125,8 @@ class RedisClient {
     });
   }
 
-  public async setTTL(key: string, expire: Time = Time.DAY) {
+  public async setTTL(key: string, expire: Time) {
+    this.logger.debug(`Extending TTL for token: ${key}, expire: ${expire}`);
     return new Promise<number>((resolve, reject) => {
       this.client.expire(key, expire, (err, reply) => {
         if (err) {

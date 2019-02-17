@@ -40,10 +40,14 @@ export class UserController implements IUserController {
   public async getActorsAsync(): Promise<Actor[]> {
     try {
       const actorRepository = await this.databaseService.connection.getRepository(Actor);
-      const actors = await actorRepository
-        .createQueryBuilder("actor")
-        .innerJoinAndSelect("actor.roles", "roles")
-        .leftJoinAndSelect("actor.pages", "pages")
+      const queryBuilder = await actorRepository.createQueryBuilder("actor");
+      const actors =
+        queryBuilder
+        .innerJoinAndSelect("actor.roles", "role")
+        .leftJoinAndSelect("actor.pages", "page")
+        .leftJoinAndSelect("page.scopes", "scope")
+        .leftJoin("scope.roles", "scope_role")
+        .where("scope_role.guid = role.guid")
         .getMany();
       return actors;
     } catch (e) {
@@ -53,8 +57,8 @@ export class UserController implements IUserController {
 
   public async getUserAsync(userParams: UserIdentityQueryParams): Promise<UserIdentity> {
     try {
-      if (userParams.name == null && userParams.guid == null) {
-        throw new ValidationException(ValidationError.BadUserGuidError);
+      if (userParams.email == null && userParams.guid == null) {
+        throw new ValidationException(ValidationError.BadUserGuidOrEmailError);
       }
 
       const userRepository = await this.databaseService.connection.getRepository(UserIdentity);
@@ -70,11 +74,11 @@ export class UserController implements IUserController {
       } else {
         user = await userRepository
           .createQueryBuilder("user")
-          .where("user.name LIKE :keyword", {
-            keyword: userParams.name
+          .where("user.email LIKE :keyword", {
+            keyword: userParams.email
           })
           .innerJoinAndSelect("user.actor", "actor")
-          .cache(`get_user_${userParams.name}`, Time.DAY_MS)
+          .cache(`get_user_${userParams.email}`, Time.DAY_MS)
           .getOne();
       }
 
@@ -217,6 +221,7 @@ export class UserController implements IUserController {
 
       const guid = uuid();
       const name = params.name;
+      const email = params.email;
       const passwordHash = await bcrypt.hash(params.password, await bcrypt.genSalt());
       const isFixture = params.isFixture;
 
@@ -245,7 +250,7 @@ export class UserController implements IUserController {
         }
       }
 
-      const newUser = new UserIdentity(guid, name, passwordHash, isFixture, actor);
+      const newUser = new UserIdentity(guid, name, email, passwordHash, isFixture, actor);
       await userRepository.save(newUser);
 
       // update actor-user link

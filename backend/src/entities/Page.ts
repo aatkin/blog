@@ -6,12 +6,14 @@ import {
   UpdateDateColumn,
   VersionColumn,
   Index,
-  ManyToOne
+  ManyToOne,
+  OneToMany
 } from "typeorm";
 
 import { ContentNode } from "src/models/ContentNode";
 import { PageMetadata } from "src/models/PageMetadata";
 import { Actor } from "src/entities/Actor";
+import { Scope } from "src/entities/Scope";
 
 @Entity()
 export class Page {
@@ -31,33 +33,32 @@ export class Page {
   @ManyToOne(_type => Actor, actor => actor.pages)
   public owner: Actor;
 
+  @OneToMany(_type => Scope, scope => scope.page, { eager: true, cascade: true })
+  public scopes: Scope[] | undefined;
+
   @CreateDateColumn()
-  public createdDate: Date;
+  public createdDate: Date | undefined;
 
   @UpdateDateColumn()
   public updateDate: Date | undefined;
 
   @VersionColumn()
-  public version: number;
+  public version: number | undefined;
 
   constructor(
     guid: string,
     title: string,
     owner: Actor,
-    createdDate: Date,
-    version: number,
-    updateDate?: Date
+    scopes?: Scope[]
   ) {
     this.guid = guid;
     this.owner = owner;
     this.content = [];
     this.metadata = new PageMetadata();
-    this.createdDate = createdDate;
-    this.updateDate = updateDate;
-    this.version = version;
+    this.scopes = scopes;
 
     if (title === "") {
-      this.title = owner.guid.slice(0, 4) + "-" + guid.slice(0, 4) + "-post";
+      this.title = guid + "-post";
     } else {
       this.title = title;
     }

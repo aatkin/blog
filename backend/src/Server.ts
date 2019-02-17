@@ -99,9 +99,9 @@ export class Server {
   }
 
   private async authenticate(req: express.Request, res: express.Response) {
-    if (req.body.userName && req.body.password) {
+    if (req.body.email && req.body.password) {
       const credentials: AuthenticationCredentials = {
-        userName: req.body.userName,
+        email: req.body.email,
         password: req.body.password
       };
 

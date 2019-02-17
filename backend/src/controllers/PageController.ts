@@ -35,6 +35,7 @@ export class PageController implements IPageController {
       const pages = await pageRepository
         .createQueryBuilder("page")
         .leftJoinAndSelect("page.owner", "owner")
+        .leftJoinAndSelect("page.scopes", "scopes")
         .getMany();
 
       return pages;
@@ -49,6 +50,8 @@ export class PageController implements IPageController {
       const pages = await pageRepository
         .createQueryBuilder("page")
         .where("page.owner = :keyword", { keyword: actorGuid })
+        .leftJoinAndSelect("page.scopes", "scope")
+        .leftJoinAndSelect("scope.roles", "role")
         .getMany();
       return pages;
     } catch (e) {
@@ -92,7 +95,7 @@ export class PageController implements IPageController {
   }
 
   public async createPageAsync(actor: Actor, pageParams: PageCreateParams): Promise<Page> {
-    const newPage = new Page(uuid(), pageParams.title || "", actor, new Date(), 0);
+    const newPage = new Page(uuid(), pageParams.title || "", actor);
 
     try {
       const pageRepository = await this.databaseService.connection.getRepository(Page);
