@@ -1,0 +1,248 @@
+{
+	"info": {
+		"_postman_id": "8c5fc06b-c8b8-2f21-d946-02143cd509f2",
+		"name": "Blog",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "api/user",
+			"item": [
+				{
+					"name": "GET api/user/actors",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{apiUrl}}/user/actors",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"user",
+								"actors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET api/user/personal",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{apiUrl}}/user/personal",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"user",
+								"personal"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST api/user/update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"user\": {\n\t\t\"guid\": \"ad279408-7f62-4f1a-920b-5cf8fc364a66\",\n\t\t\"name\": \"Admin Voimamies\"\n\t}\n}"
+						},
+						"url": {
+							"raw": "{{apiUrl}}/user/update",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"user",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET api/user/actor",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{apiUrl}}/user/actor/895d2543-1318-426c-b751-687f01f830b5",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"user",
+								"actor",
+								"895d2543-1318-426c-b751-687f01f830b5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "api/page",
+			"item": [
+				{
+					"name": "GET api/pages/all",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{apiUrl}}/page/all",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"page",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET api/pages/debug",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{apiUrl}}/page/debug",
+							"host": [
+								"{{apiUrl}}"
+							],
+							"path": [
+								"page",
+								"debug"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "POST api/authenticate (admin)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"anssi.kinnunen01@gmail.com\",\n\t\"password\": \"admin123\"\n}"
+				},
+				"url": {
+					"raw": "{{rootUrl}}/authenticate",
+					"host": [
+						"{{rootUrl}}"
+					],
+					"path": [
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST api/authenticate (regular)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"briikie@gmail.com\",\n\t\"password\": \"sql123\"\n}"
+				},
+				"url": {
+					"raw": "{{rootUrl}}/authenticate",
+					"host": [
+						"{{rootUrl}}"
+					],
+					"path": [
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
