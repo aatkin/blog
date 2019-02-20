@@ -4,6 +4,7 @@ import * as bcrypt from "bcrypt";
 
 import { Types } from "src/Types";
 import { IDatabaseService } from "src/services/DatabaseService";
+import { ILoggerService } from "src/services/LoggerService";
 import {
   UserIdentity,
   UserIdentityUpdateParams,
@@ -22,6 +23,7 @@ import { ValidationError } from "src/constants/Errors";
 import { Time } from "src/constants/Time";
 
 export interface IUserController {
+  userIsAdminAsync(actorGuid: string): Promise<boolean>;
   getActorsAsync(): Promise<Actor[]>;
   getActorAsync(actorParams: ActorQueryParams): Promise<Actor>;
   getUserAsync(userParams: UserIdentityQueryParams): Promise<UserIdentity>;
@@ -34,15 +36,38 @@ export interface IUserController {
 export class UserController implements IUserController {
   constructor(
     @inject(Types.DatabaseService)
-    private databaseService: IDatabaseService
+    private databaseService: IDatabaseService,
+    // @ts-ignore
+    @inject(Types.Logger) private logger: ILoggerService
   ) {}
+
+  public async userIsAdminAsync(actorGuid: string): Promise<boolean> {
+    try {
+      if (!actorGuid) {
+        throw new ValidationException(ValidationError.Generic);
+      }
+
+      const actorRepository = await this.databaseService.connection.getRepository(Actor);
+      const actor = await actorRepository.createQueryBuilder("actor")
+        .innerJoinAndSelect("actor.roles", "roles")
+        .where("actor.guid = :actorGuid", { actorGuid })
+        .getOne();
+
+      if (actor && actor.roles) {
+        return actor.roles.find(role => role.value === "ADMIN") != null;
+      }
+
+      return false;
+    } catch (e) {
+      throw InternalServerException.fromError(e);
+    }
+  }
 
   public async getActorsAsync(): Promise<Actor[]> {
     try {
       const actorRepository = await this.databaseService.connection.getRepository(Actor);
       const queryBuilder = await actorRepository.createQueryBuilder("actor");
-      const actors =
-        queryBuilder
+      const actors = queryBuilder
         .innerJoinAndSelect("actor.roles", "role")
         .leftJoinAndSelect("actor.pages", "page")
         .leftJoinAndSelect("page.scopes", "scope")
@@ -161,10 +186,7 @@ export class UserController implements IUserController {
       }
 
       // remove old user cache
-      await this.databaseService.clearCacheFor([
-        `get_user_${user.guid}`,
-        `get_user_${user.name}`
-      ]);
+      await this.databaseService.clearCacheFor([`get_user_${user.guid}`, `get_user_${user.name}`]);
 
       Object.assign(user, userParams);
       await userRepository.save(user);

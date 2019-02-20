@@ -3,9 +3,11 @@ import * as express from "express";
 
 import { Types } from "src/Types";
 import { IPageController } from "src/controllers/PageController";
+import { IUserController } from "src/controllers/UserController";
 import { AuthenticatedRequest } from "src/controllers/AuthenticationController";
 import { ValidationError } from "src/constants/Errors";
 import { PageQueryParams, PageCreateParams, PageUpdateParams } from "src/entities/Page";
+import { NotAuthorizedException } from "src/exceptions/NotAuthorizedException";
 
 export interface IPageRoute {
   router: express.Router;
@@ -15,7 +17,10 @@ export interface IPageRoute {
 export class PageRoute implements IPageRoute {
   public router: express.Router;
 
-  constructor(@inject(Types.PageController) private pageController: IPageController) {
+  constructor(
+    @inject(Types.PageController) private pageController: IPageController,
+    @inject(Types.UserController) private userController: IUserController
+  ) {
     this.router = express.Router();
     this.attachRoutes();
   }
@@ -56,14 +61,17 @@ export class PageRoute implements IPageRoute {
   }
 
   private async getAllPagesAsync(
-    _req: AuthenticatedRequest,
+    req: AuthenticatedRequest,
     res: express.Response,
     next: express.NextFunction
   ) {
     try {
-      // TODO: require correct role
-      const pages = await this.pageController.getPagesAsync();
-      res.json({ pages });
+      const userIsAdmin = await this.userController.userIsAdminAsync(req.authenticatedActor.guid);
+      if (userIsAdmin) {
+        const pages = await this.pageController.getPagesAsync();
+        return res.json({ pages });
+      }
+      throw new NotAuthorizedException();
     } catch (e) {
       next(e);
     }

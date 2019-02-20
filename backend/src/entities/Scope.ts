@@ -1,16 +1,9 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  ManyToMany,
-  ManyToOne,
-  JoinTable
-} from "typeorm";
+import { Entity, Column, PrimaryColumn, ManyToMany, ManyToOne, JoinTable } from "typeorm";
 
 import { Role } from "src/entities/Role";
 import { Page } from "src/entities/Page";
 
-export type Action = "create" | "update" | "delete" | "view" | "all"
+export type Action = "create" | "update" | "delete" | "view" | "all";
 
 @Entity()
 export class Scope {
@@ -20,7 +13,7 @@ export class Scope {
   @Column()
   public action: Action;
 
-  @ManyToMany<Role>(_type => Role)
+  @ManyToMany<Role>(_type => Role, { eager: true })
   @JoinTable()
   public roles: Role[] | undefined;
 

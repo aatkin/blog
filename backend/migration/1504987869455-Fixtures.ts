@@ -35,6 +35,13 @@ const adminActor = new Actor(
   adminUser
 );
 
+const regularActor = new Actor(
+  "f60536b6-f6d2-49c0-90d2-121ab9751e31",
+  "Default",
+  [defaultRole],
+  regularUser
+);
+
 const defaultPage = new Page(
   "157d0947-a5d6-4c14-bd94-32d642765dd5",
   "Front page express 2000. Testailen tässä JWT-tokenin toimintaa.",
@@ -42,26 +49,33 @@ const defaultPage = new Page(
   [new Scope(uuid(), "all", [adminRole]), new Scope(uuid(), "view", [defaultRole])]
 );
 
+const secondPage = new Page(
+  "997d0123-a5d6-4c14-bd01-00d642765dd5",
+  "Kakkossivu.",
+  regularActor,
+  [new Scope(uuid(), "all", [adminRole]), new Scope(uuid(), "all", [defaultRole])]
+);
+
 export class Fixtures1504987869455 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<any> {
-    const userRepository = queryRunner.manager.getRepository(UserIdentity);
     const actorRepository = queryRunner.manager.getRepository(Actor);
     const roleRepository = queryRunner.manager.getRepository(Role);
     const pageRepository = queryRunner.manager.getRepository(Page);
-    await userRepository.save(regularUser);
     await actorRepository.save(adminActor);
+    await actorRepository.save(regularActor);
     await roleRepository.save(defaultRole);
     await pageRepository.save(defaultPage);
+    await pageRepository.save(secondPage);
   }
 
   public async down(queryRunner: QueryRunner): Promise<any> {
-    const userRepository = queryRunner.manager.getRepository(UserIdentity);
     const actorRepository = queryRunner.manager.getRepository(Actor);
     const roleRepository = queryRunner.manager.getRepository(Role);
     const pageRepository = queryRunner.manager.getRepository(Page);
+    await pageRepository.delete(secondPage);
     await pageRepository.delete(defaultPage);
     await roleRepository.delete(defaultRole);
     await actorRepository.delete(adminActor);
-    await userRepository.delete(regularUser);
+    await actorRepository.delete(regularActor);
   }
 }

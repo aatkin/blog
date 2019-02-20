@@ -27,8 +27,11 @@ export class Actor {
   })
   public user: UserIdentity | undefined;
 
-  @ManyToMany<Role>(_type => Role, { cascade: ["insert"] })
-  @JoinTable()
+  @ManyToMany<Role>(_type => Role, role => role.actors, { cascade: ["insert"] })
+  @JoinTable({
+    joinColumn: { name: "role", referencedColumnName: "guid" },
+    inverseJoinColumn: { name: "actor", referencedColumnName: "guid" }
+  })
   public roles: Role[] | undefined;
 
   @OneToMany<Page>(_type => Page, page => page.owner, { cascade: ["insert"] })

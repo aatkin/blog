@@ -1,5 +1,6 @@
 import { injectable, inject } from "inversify";
 import * as uuid from "uuid/v4";
+import { dissoc, concat } from "ramda";
 
 import { Types } from "src/Types";
 import { DatabaseException } from "src/exceptions/DatabaseException";
@@ -9,6 +10,7 @@ import { InternalServerException } from "src/exceptions/InternalServerException"
 import { ActorNotFoundException } from "src/exceptions/ActorNotFoundException";
 import { DatabaseError } from "src/constants/Errors";
 import { IDatabaseService } from "src/services/DatabaseService";
+import { ILoggerService } from "src/services/LoggerService";
 import { IUserController } from "./UserController";
 import { Page, PageQueryParams, PageUpdateParams, PageCreateParams } from "src/entities/Page";
 import { Actor } from "src/entities/Actor";
@@ -26,7 +28,9 @@ export class PageController implements IPageController {
   constructor(
     @inject(Types.DatabaseService)
     private databaseService: IDatabaseService,
-    @inject(Types.UserController) private userController: IUserController
+    @inject(Types.UserController) private userController: IUserController,
+    // @ts-ignore
+    @inject(Types.Logger) private logger: ILoggerService
   ) {}
 
   public async getPagesAsync(): Promise<Page[]> {
@@ -35,7 +39,7 @@ export class PageController implements IPageController {
       const pages = await pageRepository
         .createQueryBuilder("page")
         .leftJoinAndSelect("page.owner", "owner")
-        .leftJoinAndSelect("page.scopes", "scopes")
+        .leftJoinAndSelect("page.scopes", "scope")
         .getMany();
 
       return pages;
@@ -49,10 +53,32 @@ export class PageController implements IPageController {
       const pageRepository = await this.databaseService.connection.getRepository(Page);
       const pages = await pageRepository
         .createQueryBuilder("page")
+        .leftJoinAndSelect("page.scopes", "scopes")
+        .leftJoinAndSelect("scopes.roles", "scope_role")
+        .leftJoinAndSelect("scope_role.actors", "actors")
         .where("page.owner = :keyword", { keyword: actorGuid })
-        .leftJoinAndSelect("page.scopes", "scope")
-        .leftJoinAndSelect("scope.roles", "role")
         .getMany();
+      // filter function for concat because ramda typings for flatten are broken
+      const isNotUndefined = (a: Actor[] | undefined): a is Actor[] => a != null;
+      pages.forEach(page => {
+        if (page.scopes) {
+          const scopes = page.scopes
+            .filter(scope => {
+              const scopeRoles = scope.roles;
+              if (scopeRoles) {
+                const actorGuids = scopeRoles
+                  .map(role => role.actors)
+                  .filter(isNotUndefined)
+                  .reduce(concat, [])
+                  .map(actor => actor.guid);
+                return actorGuids.includes(actorGuid);
+              }
+              return false;
+            })
+            .map(scope => dissoc("roles", scope));
+          Object.assign(page, { scopes });
+        }
+      });
       return pages;
     } catch (e) {
       throw InternalServerException.fromError(e);
